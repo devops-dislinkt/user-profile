@@ -8,4 +8,4 @@ profile_bp = Blueprint('profile', __name__)
 def get_all_profiles():
     profiles = database.get_all(Profile)
 
-    return  jsonify([profile.to_dict() for profile in profiles]), 200
+    return  jsonify([profile.to_dict() for profile in profiles])
