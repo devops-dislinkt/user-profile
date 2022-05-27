@@ -1,8 +1,7 @@
-FROM python:3.8.10
-WORKDIR /code
+FROM python:3.8.10-slim-buster
+WORKDIR /home/service/
 RUN pip install poetry
-COPY ./poetry.lock pyproject.toml /code/
+COPY ./poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false
 RUN poetry install
-COPY . /code/
-ENTRYPOINT ["poetry", "run", "flask", "run", "--host", "0.0.0.0"]
+ENTRYPOINT ["poetry", "run", "python", "run.py"]
