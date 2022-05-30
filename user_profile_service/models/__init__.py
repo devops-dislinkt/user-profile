@@ -1,8 +1,8 @@
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from .enums import Employment_type
-
-db = SQLAlchemy()
+from user_profile_service import db
+# db = SQLAlchemy()
 
 class Profile(db.Model, SerializerMixin):
     __tablename__ = 'profile'

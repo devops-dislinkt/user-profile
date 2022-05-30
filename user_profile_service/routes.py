@@ -1,11 +1,10 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 from user_profile_service import  database
 from user_profile_service.models import Profile
 
-profile_bp = Blueprint('profile', __name__)
+api = Blueprint('api', __name__)
 
-@profile_bp.route('/profile', methods=['GET'])
+@api.get('/profiles')
 def get_all_profiles():
     profiles = database.get_all(Profile)
-
     return  jsonify([profile.to_dict() for profile in profiles])
