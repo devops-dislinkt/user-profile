@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 def create_app():
-    from .models import db
     from . import config
     from . import routes
 

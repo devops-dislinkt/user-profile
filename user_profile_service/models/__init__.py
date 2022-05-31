@@ -2,7 +2,6 @@
 from sqlalchemy_serializer import SerializerMixin
 from .enums import Employment_type
 from user_profile_service import db
-# db = SQLAlchemy()
 
 class Profile(db.Model, SerializerMixin):
     __tablename__ = 'profile'
@@ -14,11 +13,16 @@ class Profile(db.Model, SerializerMixin):
     first_name = db.Column(db.String(120),nullable=True)
     last_name = db.Column(db.String(120), nullable=True)
     phone_number = db.Column(db.String(120), nullable=True)
-    date_of_birth = db.Column(db.Date,nullable=True)
+    birthday = db.Column(db.Date,nullable=True)
     biography = db.Column(db.Text, nullable=True)
 
     work_experience = db.relationship('Experience', backref='profile', lazy=True)
     education = db.relationship('Education', backref='profile', lazy=True)
+
+    def __repr__(self) -> str:
+        attributes = dict(self.__dict__)
+        attributes.pop('_sa_instance_state')
+        return f'Profile({attributes})'
 
 class Experience(db.Model, SerializerMixin):
     __tablename__ = 'experience'
@@ -33,6 +37,11 @@ class Experience(db.Model, SerializerMixin):
     start_date = db.Column(db.Date,nullable=True)
     end_date = db.Column(db.Date,nullable=True)
 
+    def __repr__(self) -> str:
+        attributes = dict(self.__dict__)
+        attributes.pop('_sa_instance_state')
+        return f'Profile({attributes})'
+
 
 class Education(db.Model, SerializerMixin):
     __tablename__ = 'education'
@@ -46,3 +55,7 @@ class Education(db.Model, SerializerMixin):
     end_date = db.Column(db.Date,nullable=True)
     description = db.Column(db.Text, nullable=True)
 
+    def __repr__(self) -> str:
+        attributes = dict(self.__dict__)
+        attributes.pop('_sa_instance_state')
+        return f'Profile({attributes})'

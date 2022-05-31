@@ -1,4 +1,4 @@
-from .models import db
+from .models import Profile, db
 from flask import current_app
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -19,11 +19,15 @@ def delete_instance(model, id):
     commit_changes()
 
 
-def edit_instance(model, id, **kwargs):
+def edit_instance(model, id, fields:dict):
     instance = model.query.filter_by(id=id).all()[0]
-    for attr, new_value in kwargs.items():
+    for attr, new_value in fields.items():
         setattr(instance, attr, new_value)
     commit_changes()
+
+def find_by_username(model, username:str) -> Profile:
+    '''Finds profile by username. If Profile object is not found, None is returned.'''
+    return model.query.filter_by(username=username).first()
 
 
 def commit_changes():
