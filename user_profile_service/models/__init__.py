@@ -40,8 +40,12 @@ class Experience(db.Model, SerializerMixin):
     def __repr__(self) -> str:
         attributes = dict(self.__dict__)
         attributes.pop('_sa_instance_state')
-        return f'Profile({attributes})'
+        return f'Experience({attributes})'
 
+    def get_attributes_as_dict(self):
+        attributes = dict(self.__dict__)
+        attributes.pop('_sa_instance_state')
+        return attributes
 
 class Education(db.Model, SerializerMixin):
     __tablename__ = 'education'
@@ -58,4 +62,4 @@ class Education(db.Model, SerializerMixin):
     def __repr__(self) -> str:
         attributes = dict(self.__dict__)
         attributes.pop('_sa_instance_state')
-        return f'Profile({attributes})'
+        return f'Education({attributes})'
