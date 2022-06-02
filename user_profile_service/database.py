@@ -10,8 +10,9 @@ def get_all(model):
 
 
 def add_or_update(instance: db.Model):
-    db.session.merge(instance)
+    ret = db.session.merge(instance)
     commit_changes()
+    return ret
 
 def delete_instance(model, id):
     model.query.filter_by(id=id).delete()
@@ -19,7 +20,7 @@ def delete_instance(model, id):
 
 
 def edit_instance(model, id, fields:dict):
-    instance = model.query.filter_by(id=id).all()[0]
+    instance = model.query.filter_by(id=id).first()
     for attr, new_value in fields.items():
         setattr(instance, attr, new_value)
     commit_changes()

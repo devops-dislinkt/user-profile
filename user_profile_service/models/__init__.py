@@ -19,10 +19,15 @@ class Profile(db.Model, SerializerMixin):
     work_experience = db.relationship('Experience', backref='profile', lazy=True)
     education = db.relationship('Education', backref='profile', lazy=True)
 
+    def __init__(self, fields:dict) -> None:
+        # merge dictionaries
+        self.__dict__ = {**self.__dict__, **fields}
+
     def __repr__(self) -> str:
         attributes = dict(self.__dict__)
         attributes.pop('_sa_instance_state')
         return f'Profile({attributes})'
+
 
 class Experience(db.Model, SerializerMixin):
     __tablename__ = 'experience'
@@ -37,15 +42,15 @@ class Experience(db.Model, SerializerMixin):
     start_date = db.Column(db.Date,nullable=True)
     end_date = db.Column(db.Date,nullable=True)
 
+    def __init__(self, fields:dict) -> None:
+        # merge dictionaries
+        self.__dict__ = {**self.__dict__, **fields}
+
     def __repr__(self) -> str:
         attributes = dict(self.__dict__)
         attributes.pop('_sa_instance_state')
         return f'Experience({attributes})'
 
-    def get_attributes_as_dict(self):
-        attributes = dict(self.__dict__)
-        attributes.pop('_sa_instance_state')
-        return attributes
 
 class Education(db.Model, SerializerMixin):
     __tablename__ = 'education'
@@ -58,6 +63,10 @@ class Education(db.Model, SerializerMixin):
     start_date = db.Column(db.Date,nullable=True)
     end_date = db.Column(db.Date,nullable=True)
     description = db.Column(db.Text, nullable=True)
+
+    def __init__(self, fields:dict) -> None:
+        # merge dictionaries
+        self.__dict__ = {**self.__dict__, **fields}
 
     def __repr__(self) -> str:
         attributes = dict(self.__dict__)
