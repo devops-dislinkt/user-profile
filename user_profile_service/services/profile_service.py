@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 def create_profile(username: str):
-    database.add_or_update(Profile(username=username))
+    database.add_or_update(Profile({'username': username}))
 
 def create_or_update_work_experience(data:dict, profile: Profile) -> Experience:
     data['profile_id'] = profile.id
@@ -33,3 +33,18 @@ def create_or_update_education(data:dict, profile: Profile) -> Education:
     if found_education: education.id = found_education.id
     return database.add_or_update(education)
     
+
+def update_username(data:dict, profile: Profile):
+    # update profile's username
+    profile.username = data['new_username']
+    return database.add_or_update(profile)
+    # TODO: send kafka topic to auth-servis
+
+
+def create_or_update_skills(skills: str, profile: Profile):
+    profile.skills = skills
+    return database.add_or_update(profile)
+
+def create_or_update_interests(interests: str, profile: Profile):
+    profile.interests = interests
+    return database.add_or_update(profile)

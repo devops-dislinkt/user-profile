@@ -1,4 +1,5 @@
 # from flask_sqlalchemy import SQLAlchemy
+from logging import NullHandler
 from sqlalchemy_serializer import SerializerMixin
 from .enums import Employment_type
 from user_profile_service import db
@@ -15,10 +16,12 @@ class Profile(db.Model, SerializerMixin):
     phone_number = db.Column(db.String(120), nullable=True)
     birthday = db.Column(db.Date,nullable=True)
     biography = db.Column(db.Text, nullable=True)
+    skills = db.Column(db.Text, nullable=True)
+    interests = db.Column(db.Text, nullable=True)
 
     work_experience = db.relationship('Experience', backref='profile', lazy=True)
     education = db.relationship('Education', backref='profile', lazy=True)
-
+    
     def __init__(self, fields:dict) -> None:
         # merge dictionaries
         self.__dict__ = {**self.__dict__, **fields}
@@ -26,6 +29,9 @@ class Profile(db.Model, SerializerMixin):
     def __repr__(self) -> str:
         attributes = dict(self.__dict__)
         attributes.pop('_sa_instance_state')
+        attributes.pop('skills')
+        attributes.pop('interests')
+        
         return f'Profile({attributes})'
 
 
