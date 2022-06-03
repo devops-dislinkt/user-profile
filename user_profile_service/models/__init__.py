@@ -36,6 +36,10 @@ class Profile(db.Model, SerializerMixin):
 
 class Experience(db.Model, SerializerMixin):
     __tablename__ = 'experience'
+    serialize_rules = ('-type', 'employment_type')
+
+    def employment_type(self):
+        return self.type.name
 
     id = db.Column(db.Integer, primary_key=True)
     profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable=False)
