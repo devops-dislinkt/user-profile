@@ -31,6 +31,12 @@ class Profile(db.Model, SerializerMixin):
     work_experience = db.relationship('Experience', backref='profile', lazy=True)
     education = db.relationship('Education', backref='profile', lazy=True)
     
+    followers = db.relationship('Following', backref=db.backref('following', uselist=True),
+                        primaryjoin=id == Following.following_id, uselist=True)
+    following = db.relationship('Following', backref=db.backref('follower', uselist=True),
+                                primaryjoin=id == Following.follower_id, uselist=True)
+    
+    
     def __init__(self, fields:dict) -> None:
         # merge dictionaries
         self.__dict__ = {**self.__dict__, **fields}
@@ -44,10 +50,7 @@ class Profile(db.Model, SerializerMixin):
         return f'Profile({attributes})'
 
 
-    followers = db.relationship('Following', backref=db.backref('following', uselist=True),
-                        primaryjoin=id == Following.following_id, uselist=True)
-    following = db.relationship('Following', backref=db.backref('follower', uselist=True),
-                                primaryjoin=id == Following.follower_id, uselist=True)
+
 
 
 class Experience(db.Model, SerializerMixin):

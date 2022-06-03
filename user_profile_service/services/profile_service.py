@@ -35,12 +35,10 @@ def create_or_update_education(data:dict, profile: Profile) -> Education:
     return database.add_or_update(education)
     
 
-def update_username(data:dict, profile: Profile):
-    # update profile's username
-    profile.username = data['new_username']
-    return database.add_or_update(profile)
-    # TODO: send kafka topic to auth-servis
-
+def update_username(old_username:str, new_username:str):
+    profile = get_profile(username=old_username) # find user profile with old username
+    profile.username = new_username # update profile's username
+    return database.add_or_update(profile) # save updated
 
 def create_or_update_skills(skills: str, profile: Profile):
     profile.skills = skills

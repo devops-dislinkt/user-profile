@@ -87,6 +87,7 @@ def follow_profile():
 
     return "Follow request successfully sent", 200
 
+
 @api.get('/profile/followers')
 def get_all_followers():
     data = request.json
@@ -100,6 +101,7 @@ def get_all_followers():
     except Exception as e:
         return "Not valid params: {}".format(e), 404
 
+
 @api.get('/profile/following')
 def get_all_following():
     data = request.json
@@ -112,6 +114,7 @@ def get_all_following():
         return "Not valid params: {}".format(e), 404
 
     return jsonify([profile.to_dict(only=('approved', 'following_id', 'following.username')) for profile in list])
+
 
 @api.post('/profile/followers')
 def resolve_follow_request():
