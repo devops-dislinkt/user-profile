@@ -35,3 +35,8 @@ def get_profile(username: str):
         raise NoResultFound("No user with given username")
 
     return profile
+
+def search_profile(searched_username: str):
+    profiles = Profile.query.filter(Profile.username.like('%' + searched_username + '%'))
+
+    return profiles

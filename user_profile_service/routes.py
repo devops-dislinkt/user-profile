@@ -60,3 +60,10 @@ def resolve_follow_request():
         return "Not valid params: {}".format(e), 404
 
     return "Request resolved", 200
+
+@api.get('/profile/search')
+def search_profile():
+    search_input = request.args.get("username")
+    profiles = profile_service.search_profile(search_input)
+
+    return jsonify([profile.to_dict(only=('username', 'id')) for profile in profiles]), 200
