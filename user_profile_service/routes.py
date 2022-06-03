@@ -8,6 +8,7 @@ import jwt
 
 api = Blueprint('api', __name__)
 
+
 def get_profile()-> Optional[Profile]:
     token = request.headers['authorization'].split(' ')[1]
     profile: dict | None = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
@@ -31,6 +32,7 @@ def edit_profile():
     profile = profile_service.edit_basic_info(data, profile)
     return jsonify(profile.to_dict())
 
+
 @api.put('/profiles/work-experience')
 @check_token
 def edit_profile_work_experience():
@@ -49,17 +51,6 @@ def edit_profile_education():
 
     education = profile_service.create_or_update_education(data=request.json, profile=profile)
     return jsonify(education.to_dict())
-
-@api.put('/profiles/username')
-@check_token
-def edit_profile_username():
-    profile = get_profile()
-    if not profile: return 'profile not found', 400
-    if not request.json.get('old_username') or not request.json.get('new_username'):   return 'did not receive username or password', 400 
-    if request.json.get('old_username') != profile.username: return 'old_username not correct', 400
-
-    profile = profile_service.update_username(data=request.json, profile=profile)
-    return jsonify(profile.to_dict())
 
 
 @api.put('/profiles/skills')
