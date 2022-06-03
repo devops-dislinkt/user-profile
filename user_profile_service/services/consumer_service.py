@@ -2,14 +2,15 @@ from kafka import KafkaConsumer
 from kafka.admin import KafkaAdminClient, NewTopic
 import threading
 import json
-from user_profile_service import config, flask_app
+from user_profile_service import config
 from .profile_service import create_profile
-
+from flask import current_app, Flask
 
 class ConsumerThread(threading.Thread):
-    def __init__(self):
+    def __init__(self, app: Flask):
         threading.Thread.__init__(self)
         self.stop_event = threading.Event()
+        self.app = app
 
     def stop(self):
         self.stop_event.set()
@@ -19,8 +20,8 @@ class ConsumerThread(threading.Thread):
         consumer = KafkaConsumer(bootstrap_servers=config.KAFKA_1, value_deserializer=lambda m: json.loads(m.decode('utf-8')))
         consumer.subscribe(config.KAFKA_TOPIC)
         for message in consumer:
-            with flask_app.app_context():
-                flask_app.logger.info('Received message with username : %s',message.value["username"])
+            with self.app.app_context():
+                current_app.logger.info('Received message with username : %s',message.value["username"])
                 create_profile(message.value["username"])
 
     def create_topic(self):
@@ -32,5 +33,5 @@ class ConsumerThread(threading.Thread):
         try:
             admin_client.create_topics(new_topics=[topic], validate_only=False)
         except Exception as e:
-            with flask_app.app_context():
-                flask_app.logger.error("Failed to add topic reason: {}".format(e))
+            with self.app.app_context():
+                current_app.logger.error("Failed to add topic reason: {}".format(e))

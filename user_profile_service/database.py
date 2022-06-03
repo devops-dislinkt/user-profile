@@ -8,11 +8,9 @@ def get_all(model):
     return data
 
 
-def add_instance(model, **kwargs):
-    instance = model(**kwargs)
+def add_instance(instance):
     db.session.add(instance)
     commit_changes()
-
 
 
 def delete_instance(model, id):
