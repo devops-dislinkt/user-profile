@@ -55,7 +55,7 @@ def client() -> FlaskClient:
         db.drop_all()
     
 
-class TestEditProfile:
+class TestEditProfileBasicInfo:
     '''Test case for editing profile basic info, work experience, education, skills, interests.'''
     
     def get_auth_token_valid(self, profile: Profile) -> dict:
@@ -111,3 +111,70 @@ class TestEditProfile:
         assert ret_profile.phone_number == incoming_data['phone_number']
         assert ret_profile.birthday == incoming_data['birthday']
 
+
+    def test_edit_profile_work_experience_success(self, client: FlaskClient):
+        incoming_data = {
+            "title": "Strucna prak",
+            "type": "INTERNSHIP",
+            "company": "devops & co",
+            "location": "Izmisljenog junaka 8",
+            "currently_working": False,
+            "start_date": "2015-05-15",
+            "end_date": "2018-05-15"
+        }
+        response = client.put('/api/profiles/work-experience', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        assert response.status_code == 200
+
+    
+    def test_edit_profile_work_experience_fail(self, client: FlaskClient):
+        '''Sending bad keys in incoming data should raise KeyError and return 400. Request should fail.'''
+        
+        incoming_data = { "trash": "trash"}
+        response = client.put('/api/profiles/work-experience', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        assert response.status_code == 400
+
+
+    def test_edit_profile_education_success(self, client: FlaskClient):
+        incoming_data = {
+            "education": "Master's Degree",
+            "school":  "FTN",
+            "degree": "Master",
+            "field_of_study": "Software Engineering",
+            "start_date": "2014-05-15"
+        }
+        response = client.put('/api/profiles/education', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        assert response.status_code == 200
+
+
+    def test_edit_profile_education_with_nonexisting_keys(self, client: FlaskClient):
+        '''Sending non existing keys shouldn't make a difference. Request should fail.'''
+
+        incoming_data = {
+            "trash_field": 1,
+            "trash_field2": 2,
+            "education": "Master's Degree",
+            "school":  "FTN",
+            "degree": "Master",
+            "field_of_study": "Software Engineering",
+            "start_date": "2014-05-15"
+        }
+        response = client.put('/api/profiles/education', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        assert response.status_code == 200
+
+    
+    def test_edit_profile_skills_success(self, client: FlaskClient):
+        incoming_data = {
+            "skills": "angular, tensorflow, python"
+        }
+        response = client.put('/api/profiles/skills', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        assert response.status_code == 200
+
+
+    def test_edit_profile_skills_fail(self, client: FlaskClient):
+        '''Sending bad keys in incoming data should raise KeyError and return 400. Request should fail.'''
+        
+        incoming_data = {
+            "vestine_wrong_field": "angular, tensorflow, python"
+        }
+        response = client.put('/api/profiles/skills', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        assert response.status_code == 400

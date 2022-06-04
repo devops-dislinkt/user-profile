@@ -1,7 +1,8 @@
-from flask import request, current_app
+from flask import request, current_app, jsonify
 from functools import wraps
 import jwt
 from user_profile_service import  database
+from .routes import api
 
 def check_token(f):
     @wraps(f)
@@ -26,3 +27,8 @@ def check_token(f):
 
         return f(*args, **kwargs)
     return wrap
+
+
+@api.errorhandler(KeyError)
+def handle_key_error(e):
+    return jsonify('Bad keys. Check json keys.'), 400

@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, current_app, request, Request
 from user_profile_service import  database
 from user_profile_service.models import Profile
 from .services import profile_service
-from .routes_utils import check_token
 import jwt
 from flask import Blueprint, jsonify, request
 from user_profile_service import  database
@@ -11,7 +10,7 @@ from user_profile_service.models import Profile
 from user_profile_service.services import profile_service
 
 api = Blueprint('api', __name__)
-
+from .routes_utils import check_token
 
 def get_profile()-> Optional[Profile]:
     token = request.headers['authorization'].split(' ')[1]
