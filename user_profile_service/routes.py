@@ -77,6 +77,6 @@ def get_profile_by_id(id: int, ):
     except NoResultFound as e:
         return "Not valid params: {}".format(e), 404
     if (not profile):
-        return "Profile is set to private", 200
+        return "Profile is set to private", 403
     return profile.to_dict()
 
