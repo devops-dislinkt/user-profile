@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request
 from user_profile_service import  database
 from user_profile_service.models import Profile
 from user_profile_service.services import profile_service
+from sqlalchemy.exc import NoResultFound
 
 api = Blueprint('api', __name__)
 from .routes_utils import check_token
@@ -129,3 +130,22 @@ def resolve_follow_request():
         return "Not valid params: {}".format(e), 404
 
     return "Request resolved", 200
+
+@api.get('/profile/search')
+def search_profile():
+    search_input = request.args.get("username")
+    profiles = profile_service.search_profile(search_input)
+
+    return jsonify([profile.to_dict(only=('username', 'id')) for profile in profiles]), 200
+
+@api.get('/profile/<int:id>')
+def get_profile_by_id(id: int, ):
+    logged_in_username = request.args.get("username")
+    try:
+        profile = profile_service.get_profile_by_id(id, logged_in_username)
+    except NoResultFound as e:
+        return "Not valid params: {}".format(e), 404
+    if (not profile):
+        return "Profile is set to private", 403
+    return profile.to_dict()
+

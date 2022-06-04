@@ -27,9 +27,9 @@ def create_db():
 
 def seed_db():
     profiles = [
-        Profile({'username':PUBLIC_PROFILE_USER, 'email':'john@gmail.com', 'first_name':'John', 'last_name':'Smith', 'phone_number':'+938480', 'birthday':'12.04.1995.','biography':'Lorem','private':False}),
-        Profile({'username':PRIVATE_PROFILE_USER_1, 'email':'john@gmail.com', 'first_name':'John', 'last_name':'Smith', 'phone_number':'+938480', 'birthday':'12.04.1995.','biography':'Lorem','private':True}),
-        Profile({'username':PRIVATE_PROFILE_USER_2, 'email':'john@gmail.com', 'first_name':'John', 'last_name':'Smith', 'phone_number':'+938480', 'birthday':'12.04.1995.','biography':'Lorem','private':True})
+        Profile({'username':PUBLIC_PROFILE_USER, 'email':'john@gmail.com', 'first_name':'John', 'last_name':'Smith', 'phone_number':'+938480', 'birthday':'1995-04-25','biography':'Lorem','private':False}),
+        Profile({'username':PRIVATE_PROFILE_USER_1, 'email':'john@gmail.com', 'first_name':'John', 'last_name':'Smith', 'phone_number':'+938480', 'birthday':'1995-04-25','biography':'Lorem','private':True}),
+        Profile({'username':PRIVATE_PROFILE_USER_2, 'email':'john@gmail.com', 'first_name':'John', 'last_name':'Smith', 'phone_number':'+938480', 'birthday':'1995-04-25','biography':'Lorem','private':True})
     ]
 
     db.session.bulk_save_objects(profiles)
