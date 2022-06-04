@@ -178,3 +178,20 @@ class TestEditProfileBasicInfo:
         }
         response = client.put('/api/profiles/skills', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
         assert response.status_code == 400
+
+
+    def test_edit_profile_interests(self, client: FlaskClient):
+        incoming_data = {
+            "interests": "swimming, hiking,..."
+        }
+        response = client.put('/api/profiles/interests', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        assert response.status_code == 200
+
+
+    def test_edit_profile_interests_fail(self, client: FlaskClient):
+        '''Sending bad keys in incoming data should raise KeyError and return 400. Request should fail.'''
+        incoming_data = {
+            "trash": "trash"
+        }
+        response = client.put('/api/profiles/interests', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        assert response.status_code == 400
