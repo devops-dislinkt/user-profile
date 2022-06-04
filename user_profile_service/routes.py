@@ -16,7 +16,7 @@ api = Blueprint('api', __name__)
 def get_profile()-> Optional[Profile]:
     token = request.headers['authorization'].split(' ')[1]
     profile: dict | None = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-    p =  database.find_by_username(Profile, username=profile['username'])
+    p =  database.find_by_username(username=profile['username'])
     return p
 
 
@@ -75,6 +75,8 @@ def edit_profile_interests():
     if not request.json.get('interests'): return 'did not receive interests', 400
     profile = profile_service.create_or_update_interests(interests=request.json.get('interests'), profile=profile)
     return jsonify(profile.to_dict())
+
+    
 @api.post('/profile/follow')
 def follow_profile():
     data = request.json

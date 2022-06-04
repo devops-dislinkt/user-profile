@@ -25,9 +25,9 @@ def edit_instance(model, id, fields:dict):
         setattr(instance, attr, new_value)
     commit_changes()
 
-def find_by_username(model, username:str) -> Optional[Profile]:
+def find_by_username(username:str) -> Optional[Profile]:
     '''Finds profile by username. If Profile object is not found, None is returned.'''
-    return model.query.filter_by(username=username).first()
+    return Profile.query.filter_by(username=username).first()
 
 def find_by_id(model, id):
     return model.query.get(id)
