@@ -44,8 +44,8 @@ class Profile(db.Model, SerializerMixin):
     def __repr__(self) -> str:
         attributes = dict(self.__dict__)
         attributes.pop('_sa_instance_state')
-        attributes.pop('skills')
-        attributes.pop('interests')
+        # attributes.pop('skills')
+        # attributes.pop('interests')
         
         return f'Profile({attributes})'
 
