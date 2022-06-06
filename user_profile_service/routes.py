@@ -86,7 +86,7 @@ def block_profile():
     profile = get_profile()
     if not profile: return 'profile not found', 400
     if not request.json.get('profile_to_block'): return 'did not receive profile to block', 400
-    block = profile_service.block_profile(username=request.json.get('profile_to_block'), profile=profile)
+    block = profile_service.block_profile(username_to_block=request.json.get('profile_to_block'), profile=profile)
     return block
 
 
