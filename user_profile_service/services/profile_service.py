@@ -105,11 +105,8 @@ def get_profile_by_id(id: int, logged_in_username=None):
 def block_profile(username_to_block:str, profile: Profile) -> Blocking:
     '''Blocks profile with provided username. Second arg is currently logged in profile.'''
     profile_to_block: Profile = database.find_by_username(username_to_block)
+    if not profile_to_block: raise NoResultFound(f"No user with given username: {username_to_block}")
     block = Blocking(blocker_id=profile.id, blocked_id=profile_to_block.id)
     profile_to_block.profiles_that_blocked_me.append(block)
     return database.add_or_update(block)
-
-
-def is_blocked_by():
-    # TODO: IMPLEMENT
-    pass
+    

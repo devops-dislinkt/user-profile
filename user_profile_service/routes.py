@@ -86,9 +86,11 @@ def block_profile():
     profile = get_profile()
     if not profile: return 'profile not found', 400
     if not request.json.get('profile_to_block'): return 'did not receive profile to block', 400
-    block = profile_service.block_profile(username_to_block=request.json.get('profile_to_block'), profile=profile)
-    return block
-
+    try:
+        block = profile_service.block_profile(username_to_block=request.json.get('profile_to_block'), profile=profile)
+        return jsonify(block.to_dict(only=('blocker_id', 'blocked_id')))
+    except NoResultFound:
+        return 'user not found', 404
 
 
 # FOLLOW PROFILE
