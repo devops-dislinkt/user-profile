@@ -19,6 +19,8 @@ def get_profile()-> Optional[Profile]:
     p =  database.find_by_username(username=profile['username'])
     return p
 
+# EDIT PROFILE
+#-------------
 
 @api.get('/profiles')
 def get_all_profiles():
@@ -76,7 +78,22 @@ def edit_profile_interests():
     profile = profile_service.create_or_update_interests(interests=request.json.get('interests'), profile=profile)
     return jsonify(profile.to_dict())
 
-    
+# BLOCK PROFILE
+#--------------
+
+@api.put('/profiles/block')
+def block_profile():
+    profile = get_profile()
+    if not profile: return 'profile not found', 400
+    if not request.json.get('profile_to_block'): return 'did not receive profile to block', 400
+    block = profile_service.block_profile(username=request.json.get('profile_to_block'), profile=profile)
+    return block
+
+
+
+# FOLLOW PROFILE
+#---------------
+
 @api.post('/profile/follow')
 def follow_profile():
     data = request.json

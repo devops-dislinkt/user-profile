@@ -11,10 +11,17 @@ class Following(db.Model, SerializerMixin):
     following_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete="CASCADE"), primary_key=True)
     approved = db.Column(db.Boolean, default=True)
 
+class Blocking(db.Model, SerializerMixin):
+    __tablename__ = 'blocking'
+
+    # the one who blockes a blocked used
+    blocker_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete="CASCADE"), primary_key=True)
+    # the one who's been blocked by a blocker
+    blocked_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete="CASCADE"), primary_key=True)
 
 class Profile(db.Model, SerializerMixin):
     __tablename__ = 'profile'
-    serialize_rules = ('-work_experience.profile','-education.profile', '-followers', '-following')
+    serialize_rules = ('-work_experience.profile','-education.profile', '-followers', '-following', '-profiles_blocked_by_me', '-profiles_that_blocked_me')
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -35,6 +42,15 @@ class Profile(db.Model, SerializerMixin):
                         primaryjoin=id == Following.following_id, uselist=True)
     following = db.relationship('Following', backref=db.backref('follower', uselist=True),
                                 primaryjoin=id == Following.follower_id, uselist=True)
+
+
+    #  a list of the profiles that you've blocked
+    profiles_blocked_by_me = db.relationship('Blocking', backref=db.backref('profiles_that_blocked_me', uselist=True),
+                                primaryjoin=id == Blocking.blocker_id, uselist=True)
+    
+    #  a list of the profiles that have blocked me
+    profiles_that_blocked_me = db.relationship('Blocking', backref=db.backref('profiles_blocked_by_me', uselist=True),
+                                primaryjoin=id == Blocking.blocked_id, uselist=True)
     
     
     def __init__(self, fields:dict) -> None:

@@ -1,4 +1,4 @@
-from user_profile_service.models import Profile, Following
+from user_profile_service.models import Profile, Following, Blocking
 from user_profile_service import  database
 from user_profile_service.models import Profile, Experience, Education
 from datetime import datetime
@@ -82,7 +82,6 @@ def get_profile(username: str):
 
 def search_profile(searched_username: str):
     profiles = Profile.query.filter(Profile.username.like('%' + searched_username + '%'))
-
     return profiles
 
 def get_profile_by_id(id: int, logged_in_username=None):
@@ -99,5 +98,18 @@ def get_profile_by_id(id: int, logged_in_username=None):
     for req in followers:
         if (req.approved and req.follower_id == logged_in_user.id):
             return profile
-
     return None
+
+
+
+def block_profile(username:str, profile: Profile):
+    '''Blocks profile with provided username. Second arg is currently logged in profile.'''
+    profile_to_block: Profile = database.find_by_username(username)
+    block = Blocking(blocker_id=profile.id, blocked_id=profile_to_block.id)
+    profile_to_block.profiles_that_blocked_me.append(block)
+    return database.add_or_update(block)
+
+
+def is_blocked_by():
+    # TODO: IMPLEMENT
+    pass
