@@ -32,3 +32,12 @@ def check_token(f):
 @api.errorhandler(KeyError)
 def handle_key_error(e):
     return jsonify('Bad keys. Check json keys.'), 400
+
+
+# allow all origin
+@api.after_request
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    header['Access-Control-Allow-Headers'] = '*'
+    return response
