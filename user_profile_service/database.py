@@ -14,20 +14,23 @@ def add_or_update(instance: db.Model):
     commit_changes()
     return ret
 
+
 def delete_instance(model, id):
     model.query.filter_by(id=id).delete()
     commit_changes()
 
 
-def edit_instance(model, id, fields:dict):
+def edit_instance(model, id, fields: dict):
     instance = model.query.filter_by(id=id).first()
     for attr, new_value in fields.items():
         setattr(instance, attr, new_value)
     commit_changes()
 
-def find_by_username(username:str) -> Optional[Profile]:
-    '''Finds profile by username. If Profile object is not found, None is returned.'''
+
+def find_by_username(username: str) -> Optional[Profile]:
+    """Finds profile by username. If Profile object is not found, None is returned."""
     return Profile.query.filter_by(username=username).first()
+
 
 def find_by_id(model, id):
     return model.query.get(id)
