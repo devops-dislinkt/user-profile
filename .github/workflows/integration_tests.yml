@@ -1,6 +1,6 @@
-name: Push docker image
+name: Integration tests
 on:
-  pull_request:
+  push:
     branches: [develop]
     
 jobs:  
