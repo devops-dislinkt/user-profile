@@ -32,6 +32,7 @@ jobs:
         run: |
               poetry run black .
       - name: Test with pytest
+        uses: psf/black@stable
         with:
           options: "--check --verbose"
           src: "."
