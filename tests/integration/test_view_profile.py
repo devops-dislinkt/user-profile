@@ -96,7 +96,7 @@ class TestViewProfile:
         assert 'work_experience' in response.json
 
     def test_view_public_profile_loggedin(self, client: FlaskClient):
-        response = client.get(f'/api/profile/{PUBLIC_VALID_ID}?username={PRIVATE_PROFILE_USER_2}')
+        response = client.get(f'/api/profile/{PUBLIC_VALID_ID}', headers={'user': PRIVATE_PROFILE_USER_2 })
 
         assert response.status_code == 200
         assert response.json.get("id") == PUBLIC_VALID_ID
@@ -115,17 +115,17 @@ class TestViewProfile:
         assert response.status_code == 403
 
     def test_view_private_profile_loggedin(self, client: FlaskClient):
-        response = client.get(f'/api/profile/{PRIVATE_VALID_ID}?username={PUBLIC_PROFILE_USER_2}')
+        response = client.get(f'/api/profile/{PRIVATE_VALID_ID}', headers={'user': PUBLIC_PROFILE_USER_2 })
 
         assert response.status_code == 403
 
     def test_view_private_profile_follower(self, client: FlaskClient):
-        response = client.get(f'/api/profile/{PRIVATE_VALID_ID}?username={PRIVATE_PROFILE_USER_1}')
+        response = client.get(f'/api/profile/{PRIVATE_VALID_ID}', headers={'user': PRIVATE_PROFILE_USER_1 })
 
         assert response.status_code == 403
 
     def test_view_private_profile_follower_approved(self, client: FlaskClient):
-        response = client.get(f'/api/profile/{PRIVATE_VALID_ID}?username={PUBLIC_PROFILE_USER_1}')
+        response = client.get(f'/api/profile/{PRIVATE_VALID_ID}', headers={'user': PUBLIC_PROFILE_USER_1 })
         profiles = Profile.query.all()
         print(profiles[1].id)
         assert response.status_code == 200

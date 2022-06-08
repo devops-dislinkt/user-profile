@@ -16,6 +16,7 @@ def create_app():
         db.init_app(flask_app)
         db.create_all()
         flask_app.register_blueprint(routes.api, url_prefix='/api')
+        flask_app.register_blueprint(routes.public_api)
 
     return flask_app
 
