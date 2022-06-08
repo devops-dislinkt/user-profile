@@ -10,5 +10,5 @@ DATABASE_CONNECTION_URI = (
     f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}"
 )
 
-KAFKA_1 = os.environ["KAFKA1"]  if 'KAFKA1' in os.environ else 'none'
-KAFKA_TOPIC = os.environ["KAFKA_TOPIC"]  if 'KAFKA_TOPIC' in os.environ else 'none'
+KAFKA_1 = os.environ["KAFKA1"] if "KAFKA1" in os.environ else "none"
+KAFKA_TOPIC = os.environ["KAFKA_TOPIC"] if "KAFKA_TOPIC" in os.environ else "none"
