@@ -1,4 +1,3 @@
-# from flask_sqlalchemy import SQLAlchemy
 from logging import NullHandler
 from sqlalchemy_serializer import SerializerMixin
 from .enums import Employment_type
