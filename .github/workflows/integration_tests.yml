@@ -5,7 +5,7 @@ on:
     
 jobs:  
   build:
-    runs-on: ${{ matrix.operating-system }}
+    runs-on:  ubuntu-latest
     services:
       user-profile-db:
         image: postgres:13
