@@ -24,4 +24,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/user-profile:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dislinkt-user-profile:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/dislinkt-user-profile:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/dislinkt-user-profile:buildcache,mode=max
