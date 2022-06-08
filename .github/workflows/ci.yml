@@ -57,6 +57,6 @@ jobs:
             KAFKA_TOPIC: test-topic
             DATABASE_USERNAME: postgres
             DATABASE_PASSWORD: root
-            DATABASE_DOMAIN: db
+            DATABASE_DOMAIN: localhost
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
