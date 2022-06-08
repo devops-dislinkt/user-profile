@@ -24,7 +24,7 @@ jobs:
         run: |
           poetry run black user_profile_service/*
       - name: Test with pytest
-        run: |
-          pytest
+        run: | 
+              pytest
         env:
-          CI: true
+            CI: true
