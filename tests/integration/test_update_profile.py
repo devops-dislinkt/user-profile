@@ -58,25 +58,15 @@ def client() -> FlaskClient:
 class TestEditProfileBasicInfo:
     '''Test case for editing profile basic info, work experience, education, skills, interests.'''
     
-    def get_auth_token_valid(self, profile: Profile) -> dict:
-        '''Create valid token for authentication and returns headers dictionary.'''
-        token = jwt.encode(
-            payload={'username': profile.username, 'exp': datetime.utcnow() + timedelta(minutes=30)},
-            key=os.environ['FLASK_SECRET_KEY'], 
-            algorithm='HS256')
-        
-        headers = {'authorization': f'Bearer {token}'}
+    def get_headers_valid(self, profile: Profile) -> dict:
+        '''Create headers for authentication and returns headers dictionary.'''
+        headers = {'user': f'{profile.username}'}
         return headers
 
     
-    def get_auth_token_invalid(self) -> dict:
-        '''Create invalid token with non existing user and returns headers dictionary.'''
-        token = jwt.encode(
-            payload={'username': 'profile_not_existining', 'exp': datetime.utcnow() + timedelta(minutes=30)},
-            key=os.environ['FLASK_SECRET_KEY'], 
-            algorithm='HS256')
-        
-        headers = {'authorization': f'Bearer {token}'}
+    def get_headers_invalid(self) -> dict:
+        '''Create invalid headers with non existing user and returns headers dictionary.'''
+        headers = {'user': f'trash'}
         return headers
 
 
@@ -85,22 +75,21 @@ class TestEditProfileBasicInfo:
 
         incoming_data = {'email':'petar@gmail.com', 'first_name':'Petar', 'last_name':'Peric', 'phone_number':'654321', 'birthday':'2001-04-30'}
         response = client.put('/api/profiles/basic-info', json= incoming_data)
-        assert response.status_code == 401
-        # print(response.json, type(response.json))
+        assert response.status_code == 404
 
 
     def test_edit_profile_basic_info_invalid_token(self, client: FlaskClient):
         '''Request must be send with valid token. When send invalid token, request should fail.'''
 
         incoming_data = {'email':'petar@gmail.com', 'first_name':'Petar', 'last_name':'Peric', 'phone_number':'654321', 'birthday':'2001-04-30'}
-        response = client.put('/api/profiles/basic-info', json= incoming_data, headers=self.get_auth_token_invalid())
-        assert response.status_code == 401
+        response = client.put('/api/profiles/basic-info', json= incoming_data, headers=self.get_headers_invalid())
+        assert response.status_code == 404
 
 
     def test_edit_profile_basic_info_success(self, client: FlaskClient):
 
         incoming_data = {'email':'petar@gmail.com', 'first_name':'Petar', 'last_name':'Peric', 'phone_number':'654321', 'birthday':'2001-04-30'}
-        response = client.put('/api/profiles/basic-info', json= incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/basic-info', json= incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
 
         assert response.status_code == 200
         
@@ -122,7 +111,7 @@ class TestEditProfileBasicInfo:
             "start_date": "2015-05-15",
             "end_date": "2018-05-15"
         }
-        response = client.put('/api/profiles/work-experience', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/work-experience', json=incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
         assert response.status_code == 200
 
     
@@ -130,7 +119,7 @@ class TestEditProfileBasicInfo:
         '''Sending bad keys in incoming data should raise KeyError and return 400. Request should fail.'''
         
         incoming_data = { "trash": "trash"}
-        response = client.put('/api/profiles/work-experience', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/work-experience', json=incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
         assert response.status_code == 400
 
 
@@ -142,7 +131,7 @@ class TestEditProfileBasicInfo:
             "field_of_study": "Software Engineering",
             "start_date": "2014-05-15"
         }
-        response = client.put('/api/profiles/education', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/education', json=incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
         assert response.status_code == 200
 
 
@@ -158,7 +147,7 @@ class TestEditProfileBasicInfo:
             "field_of_study": "Software Engineering",
             "start_date": "2014-05-15"
         }
-        response = client.put('/api/profiles/education', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/education', json=incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
         assert response.status_code == 200
 
     
@@ -166,7 +155,7 @@ class TestEditProfileBasicInfo:
         incoming_data = {
             "skills": "angular, tensorflow, python"
         }
-        response = client.put('/api/profiles/skills', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/skills', json=incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
         assert response.status_code == 200
 
 
@@ -176,7 +165,7 @@ class TestEditProfileBasicInfo:
         incoming_data = {
             "vestine_wrong_field": "angular, tensorflow, python"
         }
-        response = client.put('/api/profiles/skills', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/skills', json=incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
         assert response.status_code == 400
 
 
@@ -184,7 +173,7 @@ class TestEditProfileBasicInfo:
         incoming_data = {
             "interests": "swimming, hiking,..."
         }
-        response = client.put('/api/profiles/interests', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/interests', json=incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
         assert response.status_code == 200
 
 
@@ -193,5 +182,5 @@ class TestEditProfileBasicInfo:
         incoming_data = {
             "trash": "trash"
         }
-        response = client.put('/api/profiles/interests', json=incoming_data, headers=self.get_auth_token_valid(PUBLIC_PROFILE))
+        response = client.put('/api/profiles/interests', json=incoming_data, headers=self.get_headers_valid(PUBLIC_PROFILE))
         assert response.status_code == 400

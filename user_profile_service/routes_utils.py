@@ -3,6 +3,8 @@ from functools import wraps
 import jwt
 from user_profile_service import  database
 from .routes import api
+from sqlalchemy.exc import NoResultFound
+
 
 def check_token(f):
     @wraps(f)
@@ -33,6 +35,9 @@ def check_token(f):
 def handle_key_error(e):
     return jsonify('Bad keys. Check json keys.'), 400
 
+@api.errorhandler(NoResultFound)
+def handle_key_error(e):
+    return jsonify(str(e)), 404
 
 # allow all origin
 @api.after_request
