@@ -1,4 +1,4 @@
-FROM python:3.8.10-slim-buster
+FROM python:3.10-slim-buster
 WORKDIR /home/service/
 RUN pip install poetry
 COPY ./poetry.lock pyproject.toml ./
