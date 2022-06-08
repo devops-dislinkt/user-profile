@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest, windows-latest]
-        python: [3.7.5, 3.8.1]
+        python: [3.8.1]
         poetry-version: [1.1.12]
     steps:
       - uses: actions/checkout@v2
@@ -29,8 +29,11 @@ jobs:
         run: |
               poetry install
       - name: Lint with Black
-        run: |
-          poetry run black user_profile_service/*
+        uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+          src: "./src"
+          version: "21.5b1"
       - name: Test with pytest
         run: | 
               pytest
