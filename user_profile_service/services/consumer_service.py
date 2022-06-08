@@ -3,7 +3,7 @@ from kafka.admin import KafkaAdminClient, NewTopic
 import threading
 import json
 from user_profile_service import config
-from .profile_service import create_profile
+from . import profile_service
 from flask import current_app, Flask
 
 class ConsumerThread(threading.Thread):
@@ -22,7 +22,14 @@ class ConsumerThread(threading.Thread):
         for message in consumer:
             with self.app.app_context():
                 current_app.logger.info('Received message with username : %s',message.value["username"])
-                create_profile(message.value["username"])
+                
+                if message.value.get('username') and message.value.get('new_username'):
+                    old_username, new_username = message.value['username'], message.value['new_username'] 
+                    profile_service.update_username(old_username, new_username)
+                elif message.value.get('username'):
+                    profile_service.create_profile(message.value["username"])
+                else:
+                    current_app.logger.error("empty message received.")
 
     def create_topic(self):
         admin_client = KafkaAdminClient(
