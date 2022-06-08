@@ -11,6 +11,9 @@ from user_profile_service.services import profile_service
 from sqlalchemy.exc import NoResultFound
 
 api = Blueprint('api', __name__)
+
+public_api = Blueprint('', __name__)
+
 from .routes_utils import check_token
 
 def get_profile()-> Optional[Profile]:
@@ -18,7 +21,6 @@ def get_profile()-> Optional[Profile]:
     profile: dict | None = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     p =  database.find_by_username(username=profile['username'])
     return p
-
 
 @api.get('/profiles')
 def get_all_profiles():
@@ -80,7 +82,7 @@ def edit_profile_interests():
 @api.post('/profile/follow')
 def follow_profile():
     data = request.json
-    user: str = data.get('logged_in_user')
+    user: str = request.headers.get('user')
     user_to_follow: str = data.get('user_to_follow')
     try:
         profile_service.follow_profile(user, user_to_follow)
@@ -92,9 +94,8 @@ def follow_profile():
 
 @api.get('/profile/followers')
 def get_all_followers():
-    data = request.json
     approved = request.args.get("approved", default=False, type=lambda v: v.lower() == 'true')
-    user: str = data.get('logged_in_user')
+    user: str = request.headers.get('user')
     try:
         user_profile = profile_service.get_profile(user)
         list = [request for request in user_profile.followers if request.approved == approved]
@@ -106,9 +107,8 @@ def get_all_followers():
 
 @api.get('/profile/following')
 def get_all_following():
-    data = request.json
     approved = request.args.get("approved", default=False, type=lambda v: v.lower() == 'true')
-    user: str = data.get('logged_in_user')
+    user: str = request.headers.get('user')
     try:
         user_profile = profile_service.get_profile(user)
         list = [request for request in user_profile.following if request.approved == approved]
@@ -122,7 +122,7 @@ def get_all_following():
 def resolve_follow_request():
     data = request.json
     reject = data.get("reject").lower() == 'true'
-    user: str = data.get('logged_in_user')
+    user: str = request.headers.get('user')
     follower_id: str = data.get("follower_id")
     try:
         profile_service.resolve_follow_req(user, follower_id, reject)
@@ -131,18 +131,18 @@ def resolve_follow_request():
 
     return "Request resolved", 200
 
-@api.get('/profile/search')
+@public_api.get('/profile/search')
 def search_profile():
     search_input = request.args.get("username")
     profiles = profile_service.search_profile(search_input)
 
     return jsonify([profile.to_dict(only=('username', 'id')) for profile in profiles]), 200
 
-@api.get('/profile/<int:id>')
+@public_api.get('/profile/<int:id>')
 def get_profile_by_id(id: int, ):
-    logged_in_username = request.args.get("username")
+    user: str = request.headers.get('user')
     try:
-        profile = profile_service.get_profile_by_id(id, logged_in_username)
+        profile = profile_service.get_profile_by_id(id, user)
     except NoResultFound as e:
         return "Not valid params: {}".format(e), 404
     if (not profile):

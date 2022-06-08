@@ -36,7 +36,7 @@ def seed_db():
     db.session.commit()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def client() -> FlaskClient:
     '''
     Initlializes flask client app which is used to mock requests.
@@ -62,26 +62,26 @@ class TestFollowProfile:
     '''Test case for following another profile.'''
 
     def test_follow_public_profile(self, client: FlaskClient):
-        response = client.post('/api/profile/follow', json={'logged_in_user': PRIVATE_PROFILE_USER_1, 'user_to_follow': PUBLIC_PROFILE_USER })
+        response = client.post('/api/profile/follow', json={'user_to_follow': PUBLIC_PROFILE_USER }, headers={'user': PRIVATE_PROFILE_USER_1 })
 
         assert response.status_code == 200
 
 
     def test_follow_private_profile(self, client: FlaskClient):
         response = client.post('/api/profile/follow',
-                               json={'logged_in_user': PUBLIC_PROFILE_USER, 'user_to_follow': PRIVATE_PROFILE_USER_1})
+                               json={'user_to_follow': PRIVATE_PROFILE_USER_1 }, headers={'user': PUBLIC_PROFILE_USER })
 
         assert response.status_code == 200
 
 
     def test_follow_public_profile_invalid_user(self, client: FlaskClient):
         response = client.post('/api/profile/follow',
-                               json={'logged_in_user': INVALID_USER, 'user_to_follow': PUBLIC_PROFILE_USER})
+                               json={'user_to_follow': PUBLIC_PROFILE_USER}, headers={'user': INVALID_USER } )
         assert response.status_code == 404
 
     def test_follow_private_profile_invalid_user(self, client: FlaskClient):
         response = client.post('/api/profile/follow',
-                               json={'logged_in_user': INVALID_USER, 'user_to_follow': PRIVATE_PROFILE_USER_1})
+                               json={'user_to_follow': PRIVATE_PROFILE_USER_1}, headers={'user': INVALID_USER } )
         assert response.status_code == 404
 
 
