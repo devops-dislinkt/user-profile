@@ -1,9 +1,7 @@
-from typing import Optional
 from flask import Blueprint, jsonify, current_app, request, Request
 from user_profile_service import  database
 from user_profile_service.models import Profile
 from .services import profile_service
-import jwt
 from flask import Blueprint, jsonify, request
 from user_profile_service import  database
 from user_profile_service.models import Profile

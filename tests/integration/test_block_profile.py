@@ -4,9 +4,6 @@ import os
 from flask.testing import FlaskClient
 from user_profile_service import create_app, db
 from user_profile_service.models import Profile
-import jwt
-from datetime import datetime, timedelta
-from sqlalchemy.exc import NoResultFound
 
 # constants
 pera = Profile({ 'username':"pera_test", 'email':'pera@gmail.com', 'first_name':'Pera', 'last_name':'Peric', 'phone_number':'+938480', 'birthday':'2000-04-30','biography':'Lorem ipsum bio graf i ja.','private':False})
