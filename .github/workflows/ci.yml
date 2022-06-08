@@ -18,13 +18,13 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
-      - run: |
-          python poetry install
+        run: |
+            python poetry install
       - name: Lint with Black
-      - run: |
+        run: |
           poetry run black user_profile_service/*
       - name: Test with pytest
-      - run: |
+        run: |
           pytest
         env:
           CI: true
