@@ -1,6 +1,3 @@
-import os
-import psycopg2
-
 import pytest
 from user_profile_service import create_app, db
 from user_profile_service.models import Profile, Following
@@ -11,23 +8,6 @@ PRIVATE_PROFILE_USER_1 = "john_private"
 PRIVATE_PROFILE_USER_2 = "lo_private"
 PUBLIC_PROFILE_USER = "john_public"
 INVALID_USER = "invalid_user"
-
-
-def create_db():
-    conn = psycopg2.connect(
-        database="postgres",
-        user=os.environ["DATABASE_USERNAME"],
-        password=os.environ["DATABASE_PASSWORD"],
-        host=os.environ["DATABASE_DOMAIN"],
-        port=os.environ["DATABASE_PORT"],
-    )
-    conn.autocommit = True
-    cursor = conn.cursor()
-    drop_sql = f'DROP database IF EXISTS {os.environ["DATABASE_SCHEMA"]}'
-    sql = f'CREATE database {os.environ["DATABASE_SCHEMA"]}'
-    cursor.execute(drop_sql)
-    cursor.execute(sql)
-    conn.close()
 
 
 def seed_db():
@@ -75,7 +55,6 @@ def client() -> FlaskClient:
     Returns flask client app.
     """
     # setup
-    # create_db()
     app = create_app()
     with app.app_context():
         db.drop_all()
