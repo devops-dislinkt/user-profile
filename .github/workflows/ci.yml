@@ -8,20 +8,6 @@ jobs:
   build:
     runs-on: ${{ matrix.operating-system }}
     services:
-      user-profile-app:
-        image:  specnazm/dislinkt-user-profile:latest
-        ports:
-          - "5000:5000"
-        env:
-          DATABASE_USERNAME: postgres
-          DATABASE_PASSWORD: root
-          DATABASE_DOMAIN: db
-          DATABASE_SCHEMA: test-db
-          DATABASE_PORT: 5432
-          FLASK_APP: user_profile_service
-          FLASK_DEBUG: 1
-          KAFKA1: kafka1:9092
-          KAFKA_TOPIC: test-topic
       db:
         image: postgres:13
         ports:
@@ -30,6 +16,22 @@ jobs:
           POSTGRES_PASSWORD: root
           POSTGRES_USER: postgres
           POSTGRES_DB: test-db
+      # user-profile-app:
+      #   image:  specnazm/dislinkt-user-profile:latest
+      #   ports:
+      #     - "5000:5000"
+      #   env:
+      #     DATABASE_USERNAME: postgres
+      #     DATABASE_PASSWORD: root
+      #     DATABASE_DOMAIN: db
+      #     DATABASE_SCHEMA: test-db
+      #     DATABASE_PORT: 5432
+      #     FLASK_APP: user_profile_service
+      #     FLASK_DEBUG: 1
+      #     KAFKA1: kafka1:9092
+      #     KAFKA_TOPIC: test-topic
+      #   depends_on: db
+
       
     strategy:
       matrix:
