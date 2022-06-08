@@ -3,6 +3,7 @@ from logging import NullHandler
 from sqlalchemy_serializer import SerializerMixin
 from .enums import Employment_type
 from user_profile_service import db
+from sqlalchemy.orm.collections import InstrumentedList
 
 class Following(db.Model, SerializerMixin):
     __tablename__ = 'following'
@@ -11,10 +12,17 @@ class Following(db.Model, SerializerMixin):
     following_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete="CASCADE"), primary_key=True)
     approved = db.Column(db.Boolean, default=True)
 
+class Blocking(db.Model, SerializerMixin):
+    __tablename__ = 'blocking'
+
+    # the one who blockes a blocked used
+    blocker_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete="CASCADE"), primary_key=True)
+    # the one who's been blocked by a blocker
+    blocked_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete="CASCADE"), primary_key=True)
 
 class Profile(db.Model, SerializerMixin):
     __tablename__ = 'profile'
-    serialize_rules = ('-work_experience.profile','-education.profile', '-followers', '-following')
+    serialize_rules = ('-work_experience.profile','-education.profile', '-followers', '-following', '-profiles_blocked_by_me')
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -31,11 +39,23 @@ class Profile(db.Model, SerializerMixin):
     work_experience = db.relationship('Experience', backref='profile', lazy=True)
     education = db.relationship('Education', backref='profile', lazy=True)
     
-    followers = db.relationship('Following', backref=db.backref('following', uselist=True),
+    followers: InstrumentedList = db.relationship('Following', backref=db.backref('following', uselist=True),
                         primaryjoin=id == Following.following_id, uselist=True)
-    following = db.relationship('Following', backref=db.backref('follower', uselist=True),
+    following: InstrumentedList = db.relationship('Following', backref=db.backref('follower', uselist=True),
                                 primaryjoin=id == Following.follower_id, uselist=True)
+
+
+    #  a list of the profiles that you've blocked
+    profiles_blocked_by_me: InstrumentedList = db.relationship('Blocking',
+                                primaryjoin=id == Blocking.blocker_id, uselist=True)
     
+    
+    def is_profile_blocked_by_me(self, profile_id:int):
+        found = False
+        for blocked_by_me in self.profiles_blocked_by_me:
+            if blocked_by_me.blocked_id == profile_id:
+                found = True
+        return found
     
     def __init__(self, fields:dict) -> None:
         # merge dictionaries

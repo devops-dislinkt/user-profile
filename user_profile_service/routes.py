@@ -1,26 +1,20 @@
-from typing import Optional
 from flask import Blueprint, jsonify, current_app, request, Request
 from user_profile_service import  database
 from user_profile_service.models import Profile
 from .services import profile_service
-import jwt
 from flask import Blueprint, jsonify, request
 from user_profile_service import  database
 from user_profile_service.models import Profile
 from user_profile_service.services import profile_service
 from sqlalchemy.exc import NoResultFound
 
-api = Blueprint('api', __name__)
+api = Blueprint('api', __name__) # private -> requires login
 
 public_api = Blueprint('', __name__)
+import user_profile_service.routes_utils
 
-from .routes_utils import check_token
-
-def get_profile()-> Optional[Profile]:
-    token = request.headers['authorization'].split(' ')[1]
-    profile: dict | None = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-    p =  database.find_by_username(username=profile['username'])
-    return p
+# EDIT PROFILE
+#-------------
 
 @api.get('/profiles')
 def get_all_profiles():
@@ -29,9 +23,9 @@ def get_all_profiles():
 
 
 @api.put('/profiles/basic-info')
-@check_token
 def edit_profile():
-    profile = get_profile()
+    user: str = request.headers.get('user')
+    profile = profile_service.get_profile(user)
     if not profile: return 'profile not found', 400
     
     data = request.json
@@ -40,9 +34,9 @@ def edit_profile():
 
 
 @api.put('/profiles/work-experience')
-@check_token
 def edit_profile_work_experience():
-    profile = get_profile()
+    user: str = request.headers.get('user')
+    profile = profile_service.get_profile(user)
     if not profile: return 'profile not found', 400
     
     experience = profile_service.create_or_update_work_experience(data=request.json, profile=profile)
@@ -50,9 +44,9 @@ def edit_profile_work_experience():
 
 
 @api.put('/profiles/education')
-@check_token
 def edit_profile_education():
-    profile = get_profile()
+    user: str = request.headers.get('user')
+    profile = profile_service.get_profile(user)
     if not profile: return 'profile not found', 400
 
     education = profile_service.create_or_update_education(data=request.json, profile=profile)
@@ -60,25 +54,45 @@ def edit_profile_education():
 
 
 @api.put('/profiles/skills')
-@check_token
 def edit_profile_skills():
-    profile = get_profile()
+    user: str = request.headers.get('user')
+    profile = profile_service.get_profile(user)
     if not profile: return 'profile not found', 400
     if not request.json.get('skills'): return 'did not receive skills', 400
+    
     profile = profile_service.create_or_update_skills(skills=request.json.get('skills'), profile=profile)
     return jsonify(profile.to_dict())
 
 
 @api.put('/profiles/interests')
-@check_token
 def edit_profile_interests():
-    profile = get_profile()
+    user: str = request.headers.get('user')
+    profile = profile_service.get_profile(user)
     if not profile: return 'profile not found', 400
     if not request.json.get('interests'): return 'did not receive interests', 400
+    
     profile = profile_service.create_or_update_interests(interests=request.json.get('interests'), profile=profile)
     return jsonify(profile.to_dict())
 
-    
+# BLOCK PROFILE
+#--------------
+
+@api.put('/profiles/block')
+def block_profile():
+    user: str = request.headers.get('user')
+    profile = profile_service.get_profile(user)
+    if not profile: return 'profile not found', 400
+    if not request.json.get('profile_to_block'): return 'did not receive profile to block', 400
+    try:
+        block = profile_service.block_profile(username_to_block=request.json.get('profile_to_block'), profile=profile)
+        return jsonify(block.to_dict(only=('blocker_id', 'blocked_id')))
+    except NoResultFound:
+        return 'user not found', 404
+
+
+# FOLLOW PROFILE
+#---------------
+
 @api.post('/profile/follow')
 def follow_profile():
     data = request.json
