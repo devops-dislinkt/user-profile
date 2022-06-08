@@ -22,7 +22,7 @@ class Blocking(db.Model, SerializerMixin):
 
 class Profile(db.Model, SerializerMixin):
     __tablename__ = 'profile'
-    serialize_rules = ('-work_experience.profile','-education.profile', '-followers', '-following', '-profiles_blocked_by_me', '-profiles_that_blocked_me')
+    serialize_rules = ('-work_experience.profile','-education.profile', '-followers', '-following', '-profiles_blocked_by_me')
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -46,12 +46,9 @@ class Profile(db.Model, SerializerMixin):
 
 
     #  a list of the profiles that you've blocked
-    profiles_blocked_by_me: InstrumentedList = db.relationship('Blocking', backref=db.backref('profiles_that_blocked_me', uselist=True),
+    profiles_blocked_by_me: InstrumentedList = db.relationship('Blocking',
                                 primaryjoin=id == Blocking.blocker_id, uselist=True)
     
-    #  a list of the profiles that have blocked me
-    profiles_that_blocked_me: InstrumentedList = db.relationship('Blocking', backref=db.backref('profiles_blocked_by_me', uselist=True),
-                                primaryjoin=id == Blocking.blocked_id, uselist=True)
     
     def is_profile_blocked_by_me(self, profile_id:int):
         found = False

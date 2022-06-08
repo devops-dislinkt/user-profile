@@ -118,8 +118,4 @@ class TestBlockProfile:
 
         assert len(pera.profiles_blocked_by_me) == 2
         assert len(zika.profiles_blocked_by_me) == 2
-        assert len(pera.profiles_that_blocked_me) == 0
-        assert len(zika.profiles_that_blocked_me) == 1
-        assert len(kiki.profiles_that_blocked_me) == 2
-        assert len(mika.profiles_that_blocked_me) == 1
 

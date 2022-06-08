@@ -107,6 +107,6 @@ def block_profile(username_to_block:str, profile: Profile) -> Blocking:
     profile_to_block: Profile = database.find_by_username(username_to_block)
     if not profile_to_block: raise NoResultFound(f"No user with given username: {username_to_block}")
     block = Blocking(blocker_id=profile.id, blocked_id=profile_to_block.id)
-    profile_to_block.profiles_that_blocked_me.append(block)
+    profile.profiles_blocked_by_me.append(block)
     return database.add_or_update(block)
     
