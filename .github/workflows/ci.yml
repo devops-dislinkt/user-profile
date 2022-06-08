@@ -20,6 +20,8 @@ jobs:
           DATABASE_PORT: 5432
           FLASK_APP: user_profile_service
           FLASK_DEBUG: 1
+          KAFKA1: kafka1:9092
+          KAFKA_TOPIC: test-topic
       db:
         image: postgres:13
         ports:
