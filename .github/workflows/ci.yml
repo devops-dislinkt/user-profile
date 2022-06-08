@@ -32,7 +32,7 @@ jobs:
         uses: psf/black@stable
         with:
           options: "--check --verbose"
-          src: "./src"
+          src: "./user_profile_service"
           version: "21.5b1"
       - name: Test with pytest
         run: | 
