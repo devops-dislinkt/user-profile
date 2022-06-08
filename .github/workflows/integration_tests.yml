@@ -1,0 +1,37 @@
+name: Push docker image
+on:
+  pull_request:
+    branches: [develop]
+    
+jobs:  
+  build:
+    runs-on: ${{ matrix.operating-system }}
+    services:
+      user-profile-db:
+        image: postgres:13
+        ports:
+          - "5433:5432"
+        env:
+          POSTGRES_PASSWORD: root
+          POSTGRES_USER: postgres
+          POSTGRES_DB: testdb
+      user-profile-app:
+        image:  specnazm/dislinkt-user-profile:latest
+        ports:
+          - "5000:5000"
+        env:
+          DATABASE_USERNAME: postgres
+          DATABASE_PASSWORD: root
+          DATABASE_DOMAIN: db
+          DATABASE_SCHEMA: test-db
+          DATABASE_PORT: 5432
+          FLASK_APP: user_profile_service
+          FLASK_DEBUG: 1
+          KAFKA1: kafka1:9092
+          KAFKA_TOPIC: test-topic
+    steps:
+        - name: Test with pytest
+          run: | 
+              poetry run pytest
+          env:
+            CI: true
