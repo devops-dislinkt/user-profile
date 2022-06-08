@@ -32,7 +32,9 @@ jobs:
         run: |
               poetry run black .
       - name: Test with pytest
-        run: | 
-              pytest
+        with:
+          options: "--check --verbose"
+          src: "."
+          version: "22.3.0"
         env:
             CI: true
