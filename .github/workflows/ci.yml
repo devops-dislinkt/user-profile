@@ -29,11 +29,8 @@ jobs:
         run: |
               poetry install
       - name: Lint with Black
-        uses: psf/black@stable
-        with:
-          options: "--check --verbose"
-          src: "./user_profile_service"
-          version: "21.5b1"
+        run: |
+              poetry run black .
       - name: Test with pytest
         run: | 
               pytest
