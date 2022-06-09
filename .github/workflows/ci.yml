@@ -77,7 +77,7 @@ jobs:
         with:
           options: "--check --verbose"
           src: "."
-          version: "23.0"
+          version: "22.3.0"
     #----------------------------------------------
     #  scan code with SonarCloud
     #----------------------------------------------
