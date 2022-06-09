@@ -53,7 +53,7 @@ jobs:
         with:
           version: ${{ matrix.poetry-version }}
           virtualenvs-create: true
-          virtualenvs-in-project: false
+          virtualenvs-in-project: true
           installer-parallel: true
     #----------------------------------------------
     #       install dependencies if cache does not exist
@@ -64,6 +64,8 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          restore-key: |
+            venv-${{ runner.os }}-
       - name: Install dependencies
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -80,4 +82,3 @@ jobs:
             DATABASE_DOMAIN: localhost
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
-            FLASK_SECRET_KEY: secret
