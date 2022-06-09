@@ -1,5 +1,6 @@
 import enum
 
+
 class Employment_type(enum.Enum):
     FULL_TIME = 1
     PART_TIME = 2
