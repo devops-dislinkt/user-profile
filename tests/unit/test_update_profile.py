@@ -10,23 +10,6 @@ from user_profile_service import database
 from user_profile_service.services import profile_service
 
 
-def create_db():
-    """setup database before tests start executing"""
-    conn = psycopg2.connect(
-        database="postgres",
-        user=os.environ["DATABASE_USERNAME"],
-        password=os.environ["DATABASE_PASSWORD"],
-        host=os.environ["DATABASE_DOMAIN"],
-        port=os.environ["DATABASE_PORT"],
-    )
-    conn.autocommit = True
-    cursor = conn.cursor()
-    drop_sql = f'DROP database IF EXISTS {os.environ["DATABASE_SCHEMA"]}'
-    sql = f'CREATE database {os.environ["DATABASE_SCHEMA"]}'
-    cursor.execute(drop_sql)
-    cursor.execute(sql)
-    conn.close()
-
 
 def seed_db():
     PUBLIC_PROFILE = Profile(
@@ -67,7 +50,6 @@ def app() -> Flask:
     """
 
     # setup
-    # create_db()
     app = create_app()
     with app.app_context():
         db.drop_all()
