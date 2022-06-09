@@ -10,7 +10,6 @@ from user_profile_service import database
 from user_profile_service.services import profile_service
 
 
-
 def seed_db():
     PUBLIC_PROFILE = Profile(
         {

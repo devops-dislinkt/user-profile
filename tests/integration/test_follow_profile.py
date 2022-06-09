@@ -116,10 +116,8 @@ class TestFollowProfile:
         assert response.status_code == 404
 
 
-
 class TestResolveFollowRequest:
     """Test case for when user logs in."""
-
 
     def test_resolve_request_invalid_user(self, client: FlaskClient):
         response = client.post(
