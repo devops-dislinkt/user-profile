@@ -116,33 +116,23 @@ class TestFollowProfile:
         assert response.status_code == 404
 
 
-class TestListFollowers:
-    """Test case for listing all followers and following profiles."""
-
-    def test_list_all_followers_public(self, client: FlaskClient):
-        pass
-
-    def test_list_all_followers_private(self, client: FlaskClient):
-        pass
-
-    def test_list_all_approved_followers_private(self, client: FlaskClient):
-        pass
-
-    def test_list_all_followers_invalid_user(self, client: FlaskClient):
-        pass
-
-    def test_list_all_following(self, client: FlaskClient):
-        pass
-
 
 class TestResolveFollowRequest:
     """Test case for when user logs in."""
 
-    def test_resolve_request(self, client: FlaskClient):
-        pass
 
     def test_resolve_request_invalid_user(self, client: FlaskClient):
-        pass
+        response = client.post(
+            "/api/profile/follow",
+            json={"follower_id": PRIVATE_PROFILE_USER_1, "reject": True},
+            headers={"user": INVALID_USER},
+        )
+        assert response.status_code == 404
 
     def test_resolve_request_invalid_follower(self, client: FlaskClient):
-        pass
+        response = client.post(
+            "/api/profile/follow",
+            json={"follower_id": INVALID_USER, "reject": True},
+            headers={"user": PUBLIC_PROFILE_USER},
+        )
+        assert response.status_code == 404
