@@ -75,6 +75,7 @@ jobs:
       - name: Test with pytest
         run: | 
               poetry run pytest
+              poetry run coverage report -m
         env:
             KAFKA_TOPIC: test-topic
             DATABASE_USERNAME: postgres
