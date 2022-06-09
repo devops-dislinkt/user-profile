@@ -64,7 +64,7 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-key: |
+          restore-keys: |
             venv-${{ runner.os }}-
       - name: Install dependencies
         run: poetry install
