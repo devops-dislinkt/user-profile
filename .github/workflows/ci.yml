@@ -70,6 +70,15 @@ jobs:
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     #----------------------------------------------
+    #  check lint with black lib
+    #----------------------------------------------
+      - name: Check lint with Black
+        uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+          src: "."
+          version: "23.0"
+    #----------------------------------------------
     #  scan code with SonarCloud
     #----------------------------------------------
       - name: SonarCloud Scan
