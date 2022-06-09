@@ -56,7 +56,7 @@ jobs:
           virtualenvs-in-project: true
           installer-parallel: true
     #----------------------------------------------
-    #       install dependencies if cache does not exist
+    #  install dependencies if cache does not exist
     #----------------------------------------------
       - name: Load cached venv
         id: cached-poetry-dependencies
@@ -69,6 +69,14 @@ jobs:
       - name: Install dependencies
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+    #----------------------------------------------
+    #  scan code with SonarCloud
+    #----------------------------------------------
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     #----------------------------------------------
     #       run unit and integration tests
     #----------------------------------------------
