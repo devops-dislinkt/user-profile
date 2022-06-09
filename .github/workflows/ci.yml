@@ -79,14 +79,6 @@ jobs:
           src: "."
           version: "22.3.0"
     #----------------------------------------------
-    #  scan code with SonarCloud
-    #----------------------------------------------
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    #----------------------------------------------
     #       run unit and integration tests
     #----------------------------------------------
       - name: Test with pytest
@@ -99,3 +91,14 @@ jobs:
             DATABASE_DOMAIN: localhost
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
