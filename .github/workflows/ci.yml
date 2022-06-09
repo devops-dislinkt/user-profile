@@ -101,12 +101,12 @@ jobs:
       uses: sonarsource/sonarcloud-github-action@master
       with:
         projectBaseDir: user-profile-service
-      args: >
-        -Dsonar.organization=devops-dislinkt
-        -Dsonar.projectKey=devops-dislinkt_user-profile
-        -Dsonar.test.exclusions=tests/**
-        -Dsonar.tests=tests/
-        -Dsonar.verbose=true
+        args: >
+          -Dsonar.organization=devops-dislinkt
+          -Dsonar.projectKey=devops-dislinkt_user-profile
+          -Dsonar.test.exclusions=tests/**
+          -Dsonar.tests=tests/
+          -Dsonar.verbose=true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
