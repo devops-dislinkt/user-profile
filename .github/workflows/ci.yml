@@ -83,7 +83,7 @@ jobs:
     #----------------------------------------------
       - name: Test with pytest
         run: | 
-              tox -e py
+              poetry run tox -e py
         env:
             KAFKA_TOPIC: test-topic
             DATABASE_USERNAME: postgres
