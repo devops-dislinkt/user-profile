@@ -95,8 +95,10 @@ jobs:
     #       run sonar cloud scan
     #----------------------------------------------
       - name: Override Coverage Source Path for Sonar
-        run: 
+        run: |
+           cat coverage.xml
            sed -i 's/\/home\/runner\/work\user-profile\user-profile\//\/github\/workspace\//g' coverage.xml
+           cat coverage.xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
