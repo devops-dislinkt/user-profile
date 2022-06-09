@@ -83,7 +83,7 @@ jobs:
     #----------------------------------------------
       - name: Test with pytest
         run: | 
-              poetry run coverage run -m pytest --cov-report=xml --cov=user_profile_service --cov-branch 
+              poetry run pytest --cov-report=xml --cov=user_profile_service --cov-branch 
         env:
             KAFKA_TOPIC: test-topic
             DATABASE_USERNAME: postgres
