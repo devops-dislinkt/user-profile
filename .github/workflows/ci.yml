@@ -79,19 +79,11 @@ jobs:
           src: "."
           version: "22.3.0"
     #----------------------------------------------
-    #       run sonar cloud scan
-    #----------------------------------------------
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    #----------------------------------------------
     #       run unit and integration tests
     #----------------------------------------------
       - name: Test with pytest
         run: | 
-              poetry run pytest
+              poetry run coverage run -m pytest --cov-report=xml --cov=user_profile_service --cov-branch 
         env:
             KAFKA_TOPIC: test-topic
             DATABASE_USERNAME: postgres
@@ -99,3 +91,11 @@ jobs:
             DATABASE_DOMAIN: localhost
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
+    #----------------------------------------------
+    #       run sonar cloud scan
+    #----------------------------------------------
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
