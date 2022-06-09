@@ -98,15 +98,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: SonarCloud Scan
-      uses: sonarsource/sonarcloud-github-action@master
-      with:
-        projectBaseDir: user-profile-service
-        args: >
-          -Dsonar.organization=devops-dislinkt
-          -Dsonar.projectKey=devops-dislinkt_user-profile
-          -Dsonar.test.exclusions=tests/**
-          -Dsonar.tests=tests/
-          -Dsonar.verbose=true
+      uses: SonarSource/sonarcloud-github-action@master
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
