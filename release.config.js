@@ -10,5 +10,6 @@ module.exports = {
 				{"path": "coverage.xml", "label": "Code coverage"}
 			]
 		}
+		]
 	]
 }
