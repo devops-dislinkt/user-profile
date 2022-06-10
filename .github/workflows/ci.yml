@@ -94,6 +94,37 @@ jobs:
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
     #----------------------------------------------
+    #     upload test coverage 
+    #----------------------------------------------
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage
+          path: coverage.xml
+  
+    #----------------------------------------------
+    #     Build project and upload
+    #----------------------------------------------
+      - name: Build
+        if: github.event_name == 'push'
+        run: poetry run python -m build
+      - name: Upload build
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v1
+        with:
+            name: build
+            path: dist/user-profile-0.1.0.tar.gz
+
+    #----------------------------------------------
+    #     create release 
+    #----------------------------------------------
+      - name: Create a Release
+        uses: mikeal/npx@1.0.0
+        if: github.event_name == 'push' && github.refs == 'refs/heads/main'
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #----------------------------------------------
     #       run sonar cloud scan
     #----------------------------------------------
       - name: Override Coverage Source Path for Sonar
