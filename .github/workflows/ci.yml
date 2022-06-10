@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [dev, main]
   push:
-    branches: [dev]
+    branches: [dev, main]
 
 jobs:
   
@@ -103,7 +103,7 @@ jobs:
           path: coverage.xml
   
     #----------------------------------------------
-    #     Build project and upload
+    #     build project and upload
     #----------------------------------------------
       - name: Build
         if: github.event_name == 'push'
