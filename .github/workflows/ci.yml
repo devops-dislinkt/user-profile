@@ -41,6 +41,7 @@ jobs:
     #     load cached poetry if cache exists
     #----------------------------------------------
       - name: Load cached Poetry installation
+        id: cached-poetry-installation
         uses: actions/cache@v2
         with:
           path: ~/.local 
@@ -55,6 +56,7 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
+        if: steps.cached-poetry-installation.outputs.cache-hit != 'true'
     #----------------------------------------------
     #  install dependencies if cache does not exist
     #----------------------------------------------
