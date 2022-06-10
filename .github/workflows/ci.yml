@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
             name: build--${{ steps.version.outputs.VERSION }}
-            path: dist/user-profile-${{join(steps.version.outputs.VERSION, '.tar.gz'}}
+            path: dist/user-profile-${{join(steps.version.outputs.VERSION, '.tar.gz')}}
 
     #----------------------------------------------
     #     create release 
