@@ -96,6 +96,16 @@ jobs:
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
     #----------------------------------------------
+    #    get next version
+    #----------------------------------------------
+      - name: Determine next version
+        id: version
+        if: github.event_name == 'push'
+        run: |
+          echo "::set-output name=VERSION::$(npx semantic-release --dry-run | grep -oP 'Published release \K.*? ')"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #----------------------------------------------
     #     upload test coverage 
     #----------------------------------------------
       - name: Upload test coverage
@@ -109,13 +119,15 @@ jobs:
     #----------------------------------------------
       - name: Build
         if: github.event_name == 'push'
-        run: poetry run python -m build
+        run: |
+            poetry version ${{ steps.version.outputs.VERSION }}
+            poetry run python -m build
       - name: Upload build
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v1
         with:
             name: build
-            path: dist/user-profile-0.1.0.tar.gz
+            path: dist/user-profile-${{ steps.version.outputs.VERSION }}.tar.gz
 
     #----------------------------------------------
     #     create release 
