@@ -100,7 +100,7 @@ jobs:
     #----------------------------------------------
       - name: Determine next version
         id: version
-        # if: github.event_name == 'push'
+        if: github.event_name == 'push'
         run: |
           echo "::set-output name=VERSION::$(npx semantic-release --dry-run | grep -oP 'Published release \K.*? ')"
         env:
@@ -118,12 +118,12 @@ jobs:
     #     build project and upload
     #----------------------------------------------
       - name: Build
-        # if: github.event_name == 'push'
+        if: github.event_name == 'push'
         run: |
             poetry version ${{ steps.version.outputs.VERSION }}
             poetry run python -m build
       - name: Upload build
-        # if: github.event_name == 'push'
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
         with:
             name: build-${{ steps.version.outputs.VERSION }}
