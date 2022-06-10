@@ -100,7 +100,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: code-coverage
-          path: coverage 
+          path: coverage.xml
     #----------------------------------------------
     #       run sonar cloud scan
     #----------------------------------------------
