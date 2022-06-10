@@ -1,6 +1,6 @@
 module.exports = {
 	branches: ["main", {"name": "dev", "prerelease": true}],
-	repositoryUrl: "https://github.com/devops-dislinkt/user-profile",
+	repositoryUrl: "https://github.com/devops-dislinkt/user-profile.git",
 	plugins: [
 		"@semantic-release/commit-analyzer",
 		"@semantic-release/release-notes-generator",
