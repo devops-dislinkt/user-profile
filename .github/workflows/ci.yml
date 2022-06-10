@@ -79,7 +79,7 @@ jobs:
           src: "."
           version: "22.3.0"
     #----------------------------------------------
-    #       run unit and integration tests
+    #   run unit and integration tests with coverage
     #----------------------------------------------
       - name: Test with pytest
         run: | 
@@ -93,6 +93,14 @@ jobs:
             DATABASE_DOMAIN: localhost
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
+    #----------------------------------------------
+    #     upload test coverage
+    #----------------------------------------------
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage
+          path: coverage 
     #----------------------------------------------
     #       run sonar cloud scan
     #----------------------------------------------
