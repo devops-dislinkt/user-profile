@@ -94,6 +94,14 @@ jobs:
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
     #----------------------------------------------
+    #     upload test coverage
+    #----------------------------------------------
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage
+          path: coverage 
+    #----------------------------------------------
     #       run sonar cloud scan
     #----------------------------------------------
       - name: Override Coverage Source Path for Sonar
