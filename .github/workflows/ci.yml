@@ -124,7 +124,7 @@ jobs:
             poetry run python -m build
       - name: Upload build
         if: github.event_name == 'push'
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
             name: build-${{ steps.version.outputs.VERSION }}
             path: dist/*.tar.gz
