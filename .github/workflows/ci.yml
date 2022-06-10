@@ -105,10 +105,10 @@ jobs:
     #     Build project and upload
     #----------------------------------------------
       - name: Build
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         run: poetry run python -m build
       - name: Upload build
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         uses: actions/upload-artifact@v1
         with:
             name: build
