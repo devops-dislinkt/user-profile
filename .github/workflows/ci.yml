@@ -32,11 +32,17 @@ jobs:
     #----------------------------------------------
     #       check-out repo and set-up python
     #----------------------------------------------
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up python 
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
+    #----------------------------------------------
+    #       check commit message
+    #----------------------------------------------
+      - uses: wagoid/commitlint-github-action@v4
     #----------------------------------------------
     #     load cached poetry if cache exists
     #----------------------------------------------
