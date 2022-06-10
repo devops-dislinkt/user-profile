@@ -1,0 +1,137 @@
+name: CI
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev]
+
+jobs:
+  
+  build:
+    runs-on: ${{ matrix.operating-system }}    
+    services:
+      db:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: root
+          POSTGRES_USER: postgres
+          POSTGRES_DB: testdb  
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+        python: [3.8.1]
+        poetry-version: [1.1.12]
+    steps:
+    #----------------------------------------------
+    #       check-out repo and set-up python
+    #----------------------------------------------
+      - uses: actions/checkout@v2
+      - name: Set up python 
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+    #----------------------------------------------
+    #     load cached poetry if cache exists
+    #----------------------------------------------
+      - name: Load cached Poetry installation
+        uses: actions/cache@v2
+        with:
+          path: ~/.local 
+          key: poetry-0  
+    #----------------------------------------------
+    # install & configure poetry if cache does not exist
+    #----------------------------------------------
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ matrix.poetry-version }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+    #----------------------------------------------
+    #  install dependencies if cache does not exist
+    #----------------------------------------------
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-
+      - name: Install dependencies
+        run: poetry install
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+    #----------------------------------------------
+    #  check lint with black lib
+    #----------------------------------------------
+      - name: Check lint with Black
+        uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+          src: "."
+          version: "22.3.0"
+    #----------------------------------------------
+    #       run unit and integration tests
+    #----------------------------------------------
+      - name: Test with pytest
+        run: | 
+              poetry run coverage erase
+              poetry run coverage run --source=user_profile_service -m pytest 
+              poetry run coverage xml
+        env:
+            KAFKA_TOPIC: test-topic
+            DATABASE_USERNAME: postgres
+            DATABASE_PASSWORD: root
+            DATABASE_DOMAIN: localhost
+            DATABASE_SCHEMA: testdb
+            DATABASE_PORT: 5432
+    #----------------------------------------------
+    #     upload test coverage 
+    #----------------------------------------------
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage
+          path: coverage.xml
+  
+    #----------------------------------------------
+    #     Build project and upload
+    #----------------------------------------------
+      - name: Build
+        if: github.event_name == 'push'
+        run: poetry run python -m build
+      - name: Upload build
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v1
+        with:
+            name: build
+            path: dist/user-profile-0.1.0.tar.gz
+
+    #----------------------------------------------
+    #     create release 
+    #----------------------------------------------
+      - name: Create a Release
+        if: github.event_name == 'push' && github.refs == 'refs/heads/main'
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #----------------------------------------------
+    #       run sonar cloud scan
+    #----------------------------------------------
+      - name: Override Coverage Source Path for Sonar
+        run: |
+          sed -i "s/<source>\/home\/runner\/work\/user-profile\/user-profile\/user_profile_service<\/source>/<source>\/github\/workspace\/user_profile_service<\/source>/g" /home/runner/work/user-profile/user-profile/coverage.xml
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          
