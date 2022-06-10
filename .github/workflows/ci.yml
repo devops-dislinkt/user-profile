@@ -111,7 +111,7 @@ jobs:
       - name: Upload test coverage
         uses: actions/upload-artifact@v1
         with:
-          name: code-coverage--${{ steps.version.outputs.VERSION }}
+          name: code-coverage-${{ steps.version.outputs.VERSION }}
           path: coverage.xml
   
     #----------------------------------------------
@@ -126,8 +126,8 @@ jobs:
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v1
         with:
-            name: build--${{ steps.version.outputs.VERSION }}
-            path: dist/user-profile-${{format('{0}.tar.gz', steps.version.outputs.VERSION) }}
+            name: build-${{ steps.version.outputs.VERSION }}
+            path: dist/*.tar.gz
 
     #----------------------------------------------
     #     create release 
