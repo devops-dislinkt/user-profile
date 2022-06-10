@@ -100,7 +100,7 @@ jobs:
     #----------------------------------------------
       - name: Determine next version
         id: version
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         run: |
           echo "::set-output name=VERSION::$(npx semantic-release --dry-run | grep -oP 'Published release \K.*? ')"
         env:
