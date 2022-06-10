@@ -103,11 +103,7 @@ jobs:
           path: coverage.xml
   
     #----------------------------------------------
-<<<<<<< HEAD
     #     build project and upload
-=======
-    #     Build project and upload
->>>>>>> main
     #----------------------------------------------
       - name: Build
         if: github.event_name == 'push'
