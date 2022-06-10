@@ -41,6 +41,7 @@ jobs:
     #     load cached poetry if cache exists
     #----------------------------------------------
       - name: Load cached Poetry installation
+        id: cached-poetry-installation
         uses: actions/cache@v2
         with:
           path: ~/.local 
@@ -55,6 +56,7 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
+        if: steps.cached-poetry-installation.outputs.cache-hit != 'true'
     #----------------------------------------------
     #  install dependencies if cache does not exist
     #----------------------------------------------
@@ -94,12 +96,22 @@ jobs:
             DATABASE_SCHEMA: testdb
             DATABASE_PORT: 5432
     #----------------------------------------------
+    #    get next version
+    #----------------------------------------------
+      - name: Determine next version
+        id: version
+        if: github.event_name == 'push'
+        run: |
+          echo "::set-output name=VERSION::$(npx semantic-release --dry-run | grep -oP 'Published release \K.*? ')"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #----------------------------------------------
     #     upload test coverage 
     #----------------------------------------------
       - name: Upload test coverage
         uses: actions/upload-artifact@v1
         with:
-          name: code-coverage
+          name: code-coverage-${{ steps.version.outputs.VERSION }}
           path: coverage.xml
   
     #----------------------------------------------
@@ -107,13 +119,15 @@ jobs:
     #----------------------------------------------
       - name: Build
         if: github.event_name == 'push'
-        run: poetry run python -m build
+        run: |
+            poetry version ${{ steps.version.outputs.VERSION }}
+            poetry run python -m build
       - name: Upload build
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v1
         with:
-            name: build
-            path: dist/user-profile-0.1.0.tar.gz
+            name: build-${{ steps.version.outputs.VERSION }}
+            path: dist/*.tar.gz
 
     #----------------------------------------------
     #     create release 
