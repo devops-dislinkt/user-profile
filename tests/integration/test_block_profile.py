@@ -107,7 +107,7 @@ class TestBlockProfile:
         self, client: FlaskClient, incoming_data_valid: dict
     ):
         response = client.put(
-            "/api/profiles/block",
+            "/api/profile/block",
             json=incoming_data_valid,
             headers=self.get_headers_valid(mika),
         )
@@ -117,7 +117,7 @@ class TestBlockProfile:
 
     def test_block_profile_fail(self, client: FlaskClient, incoming_data_invalid: dict):
         response = client.put(
-            "/api/profiles/block",
+            "/api/profile/block",
             json=incoming_data_invalid,
             headers=self.get_headers_valid(mika),
         )
@@ -126,7 +126,7 @@ class TestBlockProfile:
 
     def test_block_profile_trash_data(self, client: FlaskClient, trash_data: dict):
         response = client.put(
-            "/api/profiles/block", json=trash_data, headers=self.get_headers_valid(mika)
+            "/api/profile/block", json=trash_data, headers=self.get_headers_valid(mika)
         )
         assert response.status_code == 400
 
@@ -134,7 +134,7 @@ class TestBlockProfile:
         self, client: FlaskClient, incoming_data_valid: dict
     ):
         """Request must be send with valid token. When send without token, request should fail."""
-        response = client.put("/api/profiles/basic-info", json=incoming_data_valid)
+        response = client.put("/api/profile/basic-info", json=incoming_data_valid)
         print(response)
         assert response.status_code == 404
 
@@ -143,7 +143,7 @@ class TestBlockProfile:
     ):
         """Request must be send with valid token. When send invalid token, request should fail."""
         response = client.put(
-            "/api/profiles/basic-info",
+            "/api/profile/basic-info",
             json=incoming_data_valid,
             headers=self.get_headers_invalid(),
         )

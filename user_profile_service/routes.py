@@ -15,15 +15,20 @@ import user_profile_service.routes_utils
 
 # EDIT PROFILE
 # -------------
+@api.get('/profile/me') 
+def get_profile_details(): 
+    user: str = request.headers.get('user') 
+    profile = profile_service.get_profile(user) 
+    if not profile: return 'profile not found', 400 
+    return jsonify(profile.to_dict())
 
-
-@api.get("/profiles")
+@api.get("/profile")
 def get_all_profiles():
     profiles = database.get_all(Profile)
     return jsonify([profile.to_dict() for profile in profiles])
 
 
-@api.put("/profiles/basic-info")
+@api.put("/profile/basic-info")
 def edit_profile():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -35,7 +40,7 @@ def edit_profile():
     return jsonify(profile.to_dict())
 
 
-@api.put("/profiles/work-experience")
+@api.put("/profile/work-experience")
 def edit_profile_work_experience():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -48,7 +53,7 @@ def edit_profile_work_experience():
     return jsonify(experience.to_dict())
 
 
-@api.put("/profiles/education")
+@api.put("/profile/education")
 def edit_profile_education():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -61,7 +66,7 @@ def edit_profile_education():
     return jsonify(education.to_dict())
 
 
-@api.put("/profiles/skills")
+@api.put("/profile/skills")
 def edit_profile_skills():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -76,7 +81,7 @@ def edit_profile_skills():
     return jsonify(profile.to_dict())
 
 
-@api.put("/profiles/interests")
+@api.put("/profile/interests")
 def edit_profile_interests():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -95,7 +100,7 @@ def edit_profile_interests():
 # --------------
 
 
-@api.put("/profiles/block")
+@api.put("/profile/block")
 def block_profile():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
