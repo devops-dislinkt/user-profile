@@ -11,8 +11,6 @@ def create_profile(username: str):
 
 def create_or_update_work_experience(data: dict, profile: Profile) -> Experience:
     data["profile_id"] = profile.id
-    data["start_date"] = datetime.strptime(data["start_date"], "%Y-%m-%d")
-    data["end_date"] = datetime.strptime(data["end_date"], "%Y-%m-%d")
     work_experience = Experience(fields=data)
 
     # if work experience exists -> update work experience, otherwise create work experience
@@ -26,7 +24,6 @@ def create_or_update_work_experience(data: dict, profile: Profile) -> Experience
 
 def edit_basic_info(data: dict, profile: Profile):
     data["profile_id"] = profile.id
-    data["birthday"] = datetime.strptime(data["birthday"], "%Y-%m-%d")
     database.edit_instance(Profile, profile.id, fields=data)
     return profile
 
@@ -87,7 +84,7 @@ def resolve_follow_req(username: str, follower_id: str, reject: bool):
     database.commit_changes()
 
 
-def get_profile(username: str):
+def get_profile(username: str) -> Profile:
     profile = Profile.query.filter_by(username=username).first()
     if not profile:
         raise NoResultFound(f"No user with given username: {username}")
@@ -95,7 +92,7 @@ def get_profile(username: str):
     return profile
 
 
-def search_profile(searched_username: str):
+def search_profile(searched_username: str) -> list[Profile]:
     profiles = Profile.query.filter(
         Profile.username.like("%" + searched_username + "%")
     )
