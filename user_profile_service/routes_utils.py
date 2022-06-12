@@ -1,5 +1,5 @@
 from flask import jsonify
-from .routes import api
+from .routes import api, public_api
 from sqlalchemy.exc import NoResultFound
 
 
@@ -13,8 +13,9 @@ def handle_key_error(e):
     return jsonify(str(e)), 404
 
 
-# allow all origin
-@api.after_request
+# # allow all origin
+@api.after_app_request
+@public_api.after_app_request
 def after_request(response):
     header = response.headers
     header["Access-Control-Allow-Origin"] = "*"

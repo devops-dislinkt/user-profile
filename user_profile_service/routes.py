@@ -201,11 +201,7 @@ def search_profile():
     search_input = request.args.get("username")
     profiles = profile_service.search_profile(search_input)
 
-    return (
-        jsonify([profile.to_dict(only=("username", "id")) for profile in profiles]),
-        200,
-    )
-
+    return jsonify([profile.to_dict(only=("username", "id", "first_name", "last_name")) for profile in profiles])
 
 @public_api.get("/profile/<int:id>")
 def get_profile_by_id(
