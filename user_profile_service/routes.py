@@ -19,13 +19,11 @@ import user_profile_service.routes_utils
 def get_profile_details(username_to_find: str):
 
     profile_to_find = profile_service.get_profile(username_to_find)
-    if not profile_to_find:
-        return "requested profile not found", 400
 
     if profile_to_find.private:
         try:
             logged_in_username: str = request.headers.get("user")
-            logged_in_profile = profile_service.get_profile(logged_in_username)
+            profile_service.get_profile(logged_in_username) # this will raise an error if user is not logged in and therefore cannot se private profile
         except:
             return "this profile is private", 400
 

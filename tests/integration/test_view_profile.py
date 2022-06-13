@@ -1,4 +1,5 @@
 import os
+from wsgiref import headers
 import psycopg2
 
 import pytest
@@ -121,6 +122,42 @@ class TestSearchProfile:
 
 class TestViewProfile:
     """Test case for viewing user's profile."""
+
+    def test_view_non_existing_profile(self, client: FlaskClient):
+        '''Viewing nonexisting profile should raise an error'''
+        username_to_find = 'trash'
+        response = client.get(f'/profile/details/{username_to_find}')
+        assert response.status_code == 404
+
+
+    def test_view_public_profile_without_login(self, client: FlaskClient):
+        '''everyone can view public profiles'''
+        username_to_find = PUBLIC_PROFILE_USER_1
+        response = client.get(f'/profile/details/{username_to_find}')
+        assert response.status_code == 200
+        assert response.json['username'] == username_to_find
+
+
+    def test_view_public_profile_with_login(self, client: FlaskClient):
+        '''everyone can view public profiles'''
+        username_to_find = PUBLIC_PROFILE_USER_1
+        response = client.get(f'/profile/details/{username_to_find}', headers={'user': PUBLIC_PROFILE_USER_2})
+        assert response.status_code == 200
+        assert response.json['username'] == username_to_find
+
+
+    def test_view_private_profile_without_login(self, client: FlaskClient):
+        '''only logged in can view private profiles'''
+        username_to_find = PRIVATE_PROFILE_USER_1
+        response = client.get(f'/profile/details/{username_to_find}')
+        assert response.status_code == 400
+
+    def test_view_private_profile_with_login(self, client: FlaskClient):
+        '''only logged in can view private profiles'''
+        username_to_find = PRIVATE_PROFILE_USER_1
+        response = client.get(f'/profile/details/{username_to_find}', headers={'user': PUBLIC_PROFILE_USER_2})
+        assert response.status_code == 200
+        
 
     def test_view_public_profile_visitor(self, client: FlaskClient):
         response = client.get(f"/profile/{PUBLIC_VALID_ID}")
