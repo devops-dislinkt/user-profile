@@ -146,8 +146,8 @@ class TestEditProfileBasicInfo:
         )
         assert response.status_code == 200
 
-    def test_edit_profile_work_experience_fail(self, client: FlaskClient):
-        """Sending bad keys in incoming data should raise KeyError and return 400. Request should fail."""
+    def test_edit_profile_work_experience_with_trash_data(self, client: FlaskClient):
+        """Sending bad keys in incoming data shouldn't raise error bacause object already exists."""
 
         incoming_data = {"trash": "trash"}
         response = client.put(
@@ -155,7 +155,7 @@ class TestEditProfileBasicInfo:
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
-        assert response.status_code == 400
+        assert response.status_code == 200
 
     def test_edit_profile_education_success(self, client: FlaskClient):
         incoming_data = {
