@@ -132,7 +132,6 @@ def get_profile_details(username_to_find: str, logged_in_username: str | None):
     # conditions for private profiles
     
     # if user is logged in continue check, otherwise return username, name &  surname
-    logged_in_profile = None
     try:
         logged_in_profile = get_profile(logged_in_username)
     except NoResultFound:

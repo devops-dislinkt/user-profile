@@ -189,9 +189,7 @@ def search_profile():
     search_input = request.args.get("username")
     profiles = profile_service.search_profile(search_input)
 
-    print([profile for profile in profiles])
-
-    # if logged in return both public & private profiles
+    # return both public & private profiles
     return jsonify(
         [profile.to_dict(only=("username", "id", "first_name", "last_name", "private")) for profile in profiles]
     )
