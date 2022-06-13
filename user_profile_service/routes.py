@@ -209,13 +209,6 @@ def search_profile():
     search_input = request.args.get("username")
     profiles = profile_service.search_profile(search_input)
 
-    # filter profiles, return only public ones if user is not logged in
-    try:
-        logged_in_username: str = request.headers.get("user")
-        logged_in_profile = profile_service.get_profile(logged_in_username)
-    except:
-        profiles = [profile for profile in profiles if profile.private == False]
-
     # if logged in return both public & private profiles
     return jsonify(
         [

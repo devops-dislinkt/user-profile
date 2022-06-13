@@ -111,11 +111,11 @@ class TestSearchProfile:
     """Test case for search another profile."""
 
     def test_search_profile(self, client: FlaskClient):
-        """search without login should return only public profiles."""
+        """search without login should return all profiles."""
         response = client.get(f"/profile/search?username={SEARCH_INPUT}")
 
         assert response.status_code == 200
-        assert len(response.json) == 1
+        assert len(response.json) == 2
         for profile in response.json:
             assert profile.get("username") in SEARCH_RESULT
 
