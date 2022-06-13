@@ -15,26 +15,6 @@ import user_profile_service.routes_utils
 
 # EDIT PROFILE
 # -------------
-@public_api.get("/profile/details/<string:username_to_find>")
-def get_profile_details(username_to_find: str):
-
-    profile_to_find = profile_service.get_profile(username_to_find)
-
-    if profile_to_find.private:
-        try:
-            logged_in_username: str = request.headers.get("user")
-            profile_service.get_profile(logged_in_username) # this will raise an error if user is not logged in and therefore cannot se private profile
-        except:
-            return "this profile is private", 400
-
-    return jsonify(profile_to_find.to_dict())
-
-
-@api.get("/profile")
-def get_all_profiles():
-    profiles = database.get_all(Profile)
-    return jsonify([profile.to_dict() for profile in profiles])
-
 
 @api.put("/profile/basic-info")
 def edit_profile():
@@ -209,26 +189,26 @@ def search_profile():
     search_input = request.args.get("username")
     profiles = profile_service.search_profile(search_input)
 
+    print([profile for profile in profiles])
+
     # if logged in return both public & private profiles
     return jsonify(
-        [
-            profile.to_dict(
-                only=("username", "id", "first_name", "last_name", "private")
-            )
-            for profile in profiles
-        ]
+        [profile.to_dict(only=("username", "id", "first_name", "last_name", "private")) for profile in profiles]
     )
 
 
-@public_api.get("/profile/<int:id>")
-def get_profile_by_id(
-    id: int,
-):
-    user: str = request.headers.get("user")
-    try:
-        profile = profile_service.get_profile_by_id(id, user)
-    except NoResultFound as e:
-        return "Not valid params: {}".format(e), 404
-    if not profile:
-        return "Profile is set to private", 403
-    return profile.to_dict()
+
+@public_api.get("/profile/details/<string:username_to_find>")
+def get_profile_details(username_to_find: str):
+
+    profile_to_find = profile_service.get_profile_details(
+        username_to_find=username_to_find, 
+        logged_in_username=request.headers.get("user"))
+
+    return jsonify(profile_to_find.to_dict())
+
+
+@api.get("/profile")
+def get_all_profiles():
+    profiles = database.get_all(Profile)
+    return jsonify([profile.to_dict() for profile in profiles])
