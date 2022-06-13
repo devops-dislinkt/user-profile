@@ -110,8 +110,8 @@ def block_profile(username_to_block: str, profile: Profile) -> Blocking:
 
 
 def get_profile_details(username_to_find: str, logged_in_username: str | None):
-    '''
-    Get profile details. Everyone can get public profile details. 
+    """
+    Get profile details. Everyone can get public profile details.
 
     In order to get  access to private profile's username, name &  surname, user which is making request must:
     1. not be blocked by requested user.
@@ -123,32 +123,41 @@ def get_profile_details(username_to_find: str, logged_in_username: str | None):
 
 
     Returns: list of profiles
-    '''
+    """
 
     # everyone can get public profile details
     profile_to_find = get_profile(username_to_find)
-    if not profile_to_find.private: return profile_to_find
+    if not profile_to_find.private:
+        return profile_to_find
 
     # conditions for private profiles
-    
+
     # if user is logged in continue check, otherwise return username, name &  surname
     try:
         logged_in_profile = get_profile(logged_in_username)
     except NoResultFound:
-        return Profile({'username': profile_to_find.username, 
-                        'first_name': profile_to_find.first_name, 
-                        'last_name': profile_to_find.last_name})
+        return Profile(
+            {
+                "username": profile_to_find.username,
+                "first_name": profile_to_find.first_name,
+                "last_name": profile_to_find.last_name,
+            }
+        )
 
     # check if it's blocked
-    if profile_to_find.is_profile_blocked_by_me(logged_in_profile.id): 
+    if profile_to_find.is_profile_blocked_by_me(logged_in_profile.id):
         raise NoResultFound(f"No user with given username: {username_to_find}")
 
     # if follow request is not approved return partial access to profile
     if not profile_to_find.is_follow_reqest_approved_by_me(logged_in_profile.id):
-        return Profile({'username': profile_to_find.username, 
-                        'first_name': profile_to_find.first_name, 
-                        'last_name': profile_to_find.last_name,
-                        'private': profile_to_find.private})
+        return Profile(
+            {
+                "username": profile_to_find.username,
+                "first_name": profile_to_find.first_name,
+                "last_name": profile_to_find.last_name,
+                "private": profile_to_find.private,
+            }
+        )
 
     # if follow request is approved return full access to profile
     else:

@@ -132,84 +132,97 @@ class TestViewProfile:
     """Test case for viewing user's profile."""
 
     def test_view_non_existing_profile(self, client: FlaskClient):
-        '''Viewing nonexisting profile should raise an error'''
-        username_to_find = 'trash'
-        response = client.get(f'/profile/details/{username_to_find}')
+        """Viewing nonexisting profile should raise an error"""
+        username_to_find = "trash"
+        response = client.get(f"/profile/details/{username_to_find}")
         assert response.status_code == 404
 
-
     def test_view_public_profile_without_login(self, client: FlaskClient):
-        '''everyone can view public profiles'''
+        """everyone can view public profiles"""
         username_to_find = PUBLIC_PROFILE_USER_1
-        response = client.get(f'/profile/details/{username_to_find}')
+        response = client.get(f"/profile/details/{username_to_find}")
         assert response.status_code == 200
-        assert response.json['username'] == username_to_find
-
+        assert response.json["username"] == username_to_find
 
     def test_view_public_profile_with_login(self, client: FlaskClient):
-        '''everyone can view public profiles'''
+        """everyone can view public profiles"""
         username_to_find = PUBLIC_PROFILE_USER_1
-        response = client.get(f'/profile/details/{username_to_find}', headers={'user': PUBLIC_PROFILE_USER_2})
+        response = client.get(
+            f"/profile/details/{username_to_find}",
+            headers={"user": PUBLIC_PROFILE_USER_2},
+        )
         assert response.status_code == 200
-        assert response.json['username'] == username_to_find
-
+        assert response.json["username"] == username_to_find
 
     def test_view_private_profile_without_login(self, client: FlaskClient):
-        '''everyone has partial access to private profile (username, first name, last name).'''
+        """everyone has partial access to private profile (username, first name, last name)."""
         username_to_find = PRIVATE_PROFILE_USER_1
-        response = client.get(f'/profile/details/{username_to_find}')
+        response = client.get(f"/profile/details/{username_to_find}")
         assert response.status_code == 200
-        assert response.json['username'] == username_to_find
-        assert response.json.get('birthday') == None
-
+        assert response.json["username"] == username_to_find
+        assert response.json.get("birthday") == None
 
     def test_view_private_profile_with_login(self, client: FlaskClient):
-        '''only logged and not blocked user has partial access to private profile'''
+        """only logged and not blocked user has partial access to private profile"""
         username_to_find = PRIVATE_PROFILE_USER_1
-        response = client.get(f'/profile/details/{username_to_find}', headers={'user': PUBLIC_PROFILE_USER_2})
+        response = client.get(
+            f"/profile/details/{username_to_find}",
+            headers={"user": PUBLIC_PROFILE_USER_2},
+        )
         assert response.status_code == 200
-        assert response.json['username'] == username_to_find
-        assert response.json.get('birthday') == None
+        assert response.json["username"] == username_to_find
+        assert response.json.get("birthday") == None
 
-    def test_view_private_profile_with_approved_follow_request(self, client: FlaskClient):
-        '''only logged in profile which has approved follow request, has full access to requested profile'''
-        
-        # user 1 sends follow request to user 2         
-        response = client.post('/api/profile/follow', 
-                        json={'user_to_follow': PRIVATE_PROFILE_USER_2},
-                        headers={'user': PRIVATE_PROFILE_USER_1}) 
+    def test_view_private_profile_with_approved_follow_request(
+        self, client: FlaskClient
+    ):
+        """only logged in profile which has approved follow request, has full access to requested profile"""
+
+        # user 1 sends follow request to user 2
+        response = client.post(
+            "/api/profile/follow",
+            json={"user_to_follow": PRIVATE_PROFILE_USER_2},
+            headers={"user": PRIVATE_PROFILE_USER_1},
+        )
         assert response.status_code == 200
 
         # user 2 approves
-        response = client.post('/api/profile/followers', 
-                                json={'follower_id': PRIVATE_VALID_ID, 'reject': 'false'},
-                                headers={'user': PRIVATE_PROFILE_USER_2}) 
+        response = client.post(
+            "/api/profile/followers",
+            json={"follower_id": PRIVATE_VALID_ID, "reject": "false"},
+            headers={"user": PRIVATE_PROFILE_USER_2},
+        )
         assert response.status_code == 200
-        
-        # user 1 sees user 2
-        response = client.get(f'/profile/details/{PRIVATE_PROFILE_USER_2}', headers={'user': PRIVATE_PROFILE_USER_1})
-        assert response.status_code == 200
-        assert response.json['username'] == PRIVATE_PROFILE_USER_2
-        assert response.json.get('birthday') == '1995-04-25'
-        assert response.json.get('biography') == 'Lorem'
 
+        # user 1 sees user 2
+        response = client.get(
+            f"/profile/details/{PRIVATE_PROFILE_USER_2}",
+            headers={"user": PRIVATE_PROFILE_USER_1},
+        )
+        assert response.status_code == 200
+        assert response.json["username"] == PRIVATE_PROFILE_USER_2
+        assert response.json.get("birthday") == "1995-04-25"
+        assert response.json.get("biography") == "Lorem"
 
     def test_view_private_profile_with_login_with_block(self, client: FlaskClient):
-        '''only logged and not blocked user has partial access to private profile'''
+        """only logged and not blocked user has partial access to private profile"""
         # user 1 blocks user 2
         # user 2 cannot find user 1
 
         # perform block
-        response = client.put('/api/profile/block', 
-                              json={'profile_to_block': PRIVATE_PROFILE_USER_2},
-                              headers={'user': PRIVATE_PROFILE_USER_1}) 
-        
+        response = client.put(
+            "/api/profile/block",
+            json={"profile_to_block": PRIVATE_PROFILE_USER_2},
+            headers={"user": PRIVATE_PROFILE_USER_1},
+        )
+
         assert response.status_code == 200
-        assert response.json['blocker_id'] == PRIVATE_VALID_ID
-        
+        assert response.json["blocker_id"] == PRIVATE_VALID_ID
+
         # try to find
         username_to_find = PRIVATE_PROFILE_USER_1
-        response = client.get(f'profile/details/{username_to_find}', headers={'user': PRIVATE_PROFILE_USER_2})
+        response = client.get(
+            f"profile/details/{username_to_find}",
+            headers={"user": PRIVATE_PROFILE_USER_2},
+        )
         assert response.status_code == 404
-    
-

@@ -16,6 +16,7 @@ import user_profile_service.routes_utils
 # EDIT PROFILE
 # -------------
 
+
 @api.put("/profile/basic-info")
 def edit_profile():
     user: str = request.headers.get("user")
@@ -191,17 +192,22 @@ def search_profile():
 
     # return both public & private profiles
     return jsonify(
-        [profile.to_dict(only=("username", "id", "first_name", "last_name", "private")) for profile in profiles]
+        [
+            profile.to_dict(
+                only=("username", "id", "first_name", "last_name", "private")
+            )
+            for profile in profiles
+        ]
     )
-
 
 
 @public_api.get("/profile/details/<string:username_to_find>")
 def get_profile_details(username_to_find: str):
 
     profile_to_find = profile_service.get_profile_details(
-        username_to_find=username_to_find, 
-        logged_in_username=request.headers.get("user"))
+        username_to_find=username_to_find,
+        logged_in_username=request.headers.get("user"),
+    )
 
     return jsonify(profile_to_find.to_dict())
 
