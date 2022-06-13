@@ -15,20 +15,22 @@ import user_profile_service.routes_utils
 
 # EDIT PROFILE
 # -------------
-@public_api.get('/profile/details/<string:username_to_find>') 
-def get_profile_details(username_to_find: str): 
+@public_api.get("/profile/details/<string:username_to_find>")
+def get_profile_details(username_to_find: str):
 
-    profile_to_find = profile_service.get_profile(username_to_find) 
-    if not profile_to_find: return 'requested profile not found', 400
-    
-    if profile_to_find.private:        
+    profile_to_find = profile_service.get_profile(username_to_find)
+    if not profile_to_find:
+        return "requested profile not found", 400
+
+    if profile_to_find.private:
         try:
-            logged_in_username: str = request.headers.get('user')
-            logged_in_profile = profile_service.get_profile(logged_in_username) 
-        except: 
-            return 'this profile is private', 400
+            logged_in_username: str = request.headers.get("user")
+            logged_in_profile = profile_service.get_profile(logged_in_username)
+        except:
+            return "this profile is private", 400
 
     return jsonify(profile_to_find.to_dict())
+
 
 @api.get("/profile")
 def get_all_profiles():
@@ -211,13 +213,21 @@ def search_profile():
 
     # filter profiles, return only public ones if user is not logged in
     try:
-        logged_in_username: str = request.headers.get('user') 
-        logged_in_profile = profile_service.get_profile(logged_in_username) 
+        logged_in_username: str = request.headers.get("user")
+        logged_in_profile = profile_service.get_profile(logged_in_username)
     except:
-        profiles = [profile for profile in profiles if profile.private==False]
-        
+        profiles = [profile for profile in profiles if profile.private == False]
+
     # if logged in return both public & private profiles
-    return jsonify([profile.to_dict(only=("username", "id", "first_name", "last_name", "private")) for profile in profiles])
+    return jsonify(
+        [
+            profile.to_dict(
+                only=("username", "id", "first_name", "last_name", "private")
+            )
+            for profile in profiles
+        ]
+    )
+
 
 @public_api.get("/profile/<int:id>")
 def get_profile_by_id(
