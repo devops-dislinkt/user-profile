@@ -93,8 +93,6 @@ def edit_profile_interests():
 def block_profile():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
-    if not profile:
-        return "profile not found", 400
     if not request.json.get("profile_to_block"):
         return "did not receive profile to block", 400
     try:
@@ -104,6 +102,15 @@ def block_profile():
         return jsonify(block.to_dict(only=("blocker_id", "blocked_id")))
     except NoResultFound:
         return "user not found", 404
+
+
+@api.get('/profile/is-blocked-by-me/<string:username_to_find>')
+def is_profile_blocked_by_me(username_to_find:str):
+    user: str = request.headers.get("user")
+    profile = profile_service.get_profile(user)
+    profile_to_find = profile_service.get_profile(username_to_find)    
+    is_blocked = profile.is_profile_blocked_by_me(profile_to_find.id)
+    return jsonify(is_blocked)
 
 
 # FOLLOW PROFILE
