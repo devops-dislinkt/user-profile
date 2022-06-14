@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.local 
-          key: poetry-1
+          key: poetry-0
     #----------------------------------------------
     # install & configure poetry if cache does not exist
     #----------------------------------------------
