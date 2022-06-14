@@ -104,11 +104,11 @@ def block_profile():
         return "user not found", 404
 
 
-@api.get('/profile/is-blocked-by-me/<string:username_to_find>')
-def is_profile_blocked_by_me(username_to_find:str):
+@api.get("/profile/is-blocked-by-me/<string:username_to_find>")
+def is_profile_blocked_by_me(username_to_find: str):
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
-    profile_to_find = profile_service.get_profile(username_to_find)    
+    profile_to_find = profile_service.get_profile(username_to_find)
     is_blocked = profile.is_profile_blocked_by_me(profile_to_find.id)
     return jsonify(is_blocked)
 
@@ -161,14 +161,12 @@ def get_all_following():
     )
     user: str = request.headers.get("user")
     user_profile = profile_service.get_profile(user)
-    req_list = [request  for request in user_profile.following
-                if request.approved == approved]
-        
+    req_list = [
+        request for request in user_profile.following if request.approved == approved
+    ]
+
     return jsonify(
-        [
-            profile.to_dict(only=("approved", "following_id"))
-            for profile in req_list
-        ]
+        [profile.to_dict(only=("approved", "following_id")) for profile in req_list]
     )
 
 
@@ -186,9 +184,9 @@ def resolve_follow_request():
     return "Request resolved", 200
 
 
-
 # SEARCH AND GET
 # --------------
+
 
 @public_api.get("/profile/search")
 def search_profile():

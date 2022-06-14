@@ -149,29 +149,36 @@ class TestBlockProfile:
         )
         assert response.status_code == 404
 
-
-    def test_is_profile_blocked_by_me(self, client: FlaskClient, incoming_data_valid:dict):
-        '''Should return true if I exist, if user exists and I blocked requested user'''
+    def test_is_profile_blocked_by_me(
+        self, client: FlaskClient, incoming_data_valid: dict
+    ):
+        """Should return true if I exist, if user exists and I blocked requested user"""
         # mika blocks pera in previous test
 
         # mika sees that he blocked pera
-        response = client.get(f'/api/profile/is-blocked-by-me/{pera.username}', headers=self.get_headers_valid(mika))
+        response = client.get(
+            f"/api/profile/is-blocked-by-me/{pera.username}",
+            headers=self.get_headers_valid(mika),
+        )
         assert response.status_code == 200
         assert response.json == True
 
-    
     def test_is_profile_blocked_by_me_fail(self, client: FlaskClient):
-        '''Should return true if I exist, if user exists and I blocked requested user'''
+        """Should return true if I exist, if user exists and I blocked requested user"""
         # mika blocks pera in previous test
 
         # mika sees that he blocked pera
-        response = client.get(f'/api/profile/is-blocked-by-me/TRASH', headers=self.get_headers_valid(mika))
+        response = client.get(
+            f"/api/profile/is-blocked-by-me/TRASH", headers=self.get_headers_valid(mika)
+        )
         assert response.status_code == 404
 
     def test_is_profile_blocked_by_me_without_login(self, client: FlaskClient):
-        '''Should return true if I exist, if user exists and I blocked requested user'''
+        """Should return true if I exist, if user exists and I blocked requested user"""
         # mika blocks pera in previous test
 
         # mika sees that he blocked pera
-        response = client.get(f'/api/profile/is-blocked-by-me/{pera.username}', headers={})
+        response = client.get(
+            f"/api/profile/is-blocked-by-me/{pera.username}", headers={}
+        )
         assert response.status_code == 404
