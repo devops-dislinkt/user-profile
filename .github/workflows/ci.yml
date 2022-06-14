@@ -27,7 +27,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest]
         python: [3.10.0]
-        poetry-version: [1.1.12]
+        poetry-version: [1.1.13]
     steps:
     #----------------------------------------------
     #       check-out repo and set-up python
@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.local 
-          key: poetry-0
+          key: poetry-1
     #----------------------------------------------
     # install & configure poetry if cache does not exist
     #----------------------------------------------
