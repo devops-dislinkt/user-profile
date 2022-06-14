@@ -63,8 +63,13 @@ def follow_profile(user: str, user_to_follow: str):
 
     request = Following(follower_id=profile.id, following_id=profile_to_follow.id)
     request.approved = False if profile_to_follow.private else True
-    profile_to_follow.followers.append(request)
-    database.add_or_update(request)
+
+    # check if request alreay exists
+    found_req = any(request.follower_id == req.follower_id and request.following_id == req.following_id for req in profile_to_follow.followers)
+    if not found_req:
+        profile_to_follow.followers.append(request)
+        database.add_or_update(profile_to_follow)
+
 
 
 def resolve_follow_req(username: str, follower_id: str, reject: bool):
@@ -141,6 +146,7 @@ def get_profile_details(username_to_find: str, logged_in_username: str | None):
                 "username": profile_to_find.username,
                 "first_name": profile_to_find.first_name,
                 "last_name": profile_to_find.last_name,
+                "id": profile_to_find.id
             }
         )
 
@@ -156,6 +162,7 @@ def get_profile_details(username_to_find: str, logged_in_username: str | None):
                 "first_name": profile_to_find.first_name,
                 "last_name": profile_to_find.last_name,
                 "private": profile_to_find.private,
+                "id": profile_to_find.id
             }
         )
 

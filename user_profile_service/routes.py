@@ -127,7 +127,7 @@ def follow_profile():
     except Exception as e:
         return "Not valid params: {}".format(e), 404
 
-    return "Follow request successfully sent", 200
+    return jsonify("Follow request successfully sent"), 200
 
 
 @api.get("/profile/followers")
@@ -160,20 +160,14 @@ def get_all_following():
         "approved", default=False, type=lambda v: v.lower() == "true"
     )
     user: str = request.headers.get("user")
-    try:
-        user_profile = profile_service.get_profile(user)
-        list = [
-            request
-            for request in user_profile.following
-            if request.approved == approved
-        ]
-    except Exception as e:
-        return "Not valid params: {}".format(e), 404
-
+    user_profile = profile_service.get_profile(user)
+    req_list = [request  for request in user_profile.following
+                if request.approved == approved]
+        
     return jsonify(
         [
-            profile.to_dict(only=("approved", "following_id", "following.username"))
-            for profile in list
+            profile.to_dict(only=("approved", "following_id"))
+            for profile in req_list
         ]
     )
 
@@ -192,8 +186,13 @@ def resolve_follow_request():
     return "Request resolved", 200
 
 
+
+# SEARCH AND GET
+# --------------
+
 @public_api.get("/profile/search")
 def search_profile():
+
     search_input = request.args.get("username")
     profiles = profile_service.search_profile(search_input)
 
