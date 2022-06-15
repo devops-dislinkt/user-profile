@@ -32,11 +32,18 @@ jobs:
     #----------------------------------------------
     #       check-out repo and set-up python
     #----------------------------------------------
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up python 
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
+    #----------------------------------------------
+    #       check commit message
+    #----------------------------------------------
+      - name : Check commit messages
+        uses: wagoid/commitlint-github-action@v4
     #----------------------------------------------
     #     load cached poetry if cache exists
     #----------------------------------------------
@@ -108,6 +115,7 @@ jobs:
     #----------------------------------------------
       - name: Upload test coverage
         uses: actions/upload-artifact@v1
+        if: github.event_name == 'push'
         with:
           name: code-coverage-${{ steps.version.outputs.VERSION }}
           path: coverage.xml
@@ -140,7 +148,8 @@ jobs:
     #----------------------------------------------
       - name: Override Coverage Source Path for Sonar
         run: |
-          sed -i "s/<source>\/home\/runner\/work\/user-profile\/user-profile\/user_profile_service<\/source>/<source>\/github\/workspace\/user_profile_service<\/source>/g" /home/runner/work/user-profile/user-profile/coverage.xml
+          sed -i "s/<source>\/home\/runner\/work\/user-profile\/user-profile<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/user-profile/user-profile/coverage.xml
+          cat coverage.xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:

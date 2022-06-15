@@ -16,6 +16,7 @@ class Following(db.Model, SerializerMixin):
         db.Integer, db.ForeignKey("profile.id", ondelete="CASCADE"), primary_key=True
     )
     approved = db.Column(db.Boolean, default=True)
+    some_code_changed = db.Column(db.Boolean, default=False)
 
 
 class Blocking(db.Model, SerializerMixin):
