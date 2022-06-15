@@ -81,6 +81,13 @@ class Profile(db.Model, SerializerMixin):
                 found = True
         return found
 
+    def is_follow_reqest_approved_by_me(self, profile_id: int):
+        found = False
+        for req in self.followers:
+            if req.approved and req.follower_id == profile_id:
+                found = True
+        return found
+
     def __init__(self, fields: dict) -> None:
         # merge dictionaries
         self.__dict__ = {**self.__dict__, **fields}

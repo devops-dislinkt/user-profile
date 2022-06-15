@@ -1,4 +1,6 @@
 import os
+from urllib import response
+from wsgiref import headers
 import psycopg2
 
 import pytest
@@ -41,7 +43,7 @@ def seed_db():
                 "last_name": "Smith",
                 "phone_number": "+938480",
                 "birthday": "1995-04-25",
-                " biography": "Lorem",
+                "biography": "Lorem",
                 "private": True,
             }
         ),
@@ -53,7 +55,7 @@ def seed_db():
                 "last_name": "Smith",
                 "phone_number": "+938480",
                 "birthday": "1995-04-25",
-                " biography": "Lorem",
+                "biography": "Lorem",
                 "private": True,
             }
         ),
@@ -110,6 +112,7 @@ class TestSearchProfile:
     """Test case for search another profile."""
 
     def test_search_profile(self, client: FlaskClient):
+        """search without login should return all profiles."""
         response = client.get(f"/profile/search?username={SEARCH_INPUT}")
 
         assert response.status_code == 200
@@ -117,62 +120,109 @@ class TestSearchProfile:
         for profile in response.json:
             assert profile.get("username") in SEARCH_RESULT
 
+    def test_search_profile_non_existing_profile(self, client: FlaskClient):
+        """search without login should return all profiles."""
+        response = client.get(f"/profile/search?username=TRASH")
+
+        assert response.status_code == 200
+        assert len(response.json) == 0
+
 
 class TestViewProfile:
     """Test case for viewing user's profile."""
 
-    def test_view_public_profile_visitor(self, client: FlaskClient):
-        response = client.get(f"/profile/{PUBLIC_VALID_ID}")
-
-        assert response.status_code == 200
-        assert response.json.get("id") == PUBLIC_VALID_ID
-        assert response.json.get("username") == PUBLIC_PROFILE_USER_1
-        assert "education" in response.json
-        assert "work_experience" in response.json
-
-    def test_view_public_profile_loggedin(self, client: FlaskClient):
-        response = client.get(
-            f"/profile/{PUBLIC_VALID_ID}", headers={"user": PRIVATE_PROFILE_USER_2}
-        )
-
-        assert response.status_code == 200
-        assert response.json.get("id") == PUBLIC_VALID_ID
-        assert response.json.get("username") == PUBLIC_PROFILE_USER_1
-        assert "education" in response.json
-        assert "work_experience" in response.json
-
-    def test_view_public_profile_invalid_id(self, client: FlaskClient):
-        response = client.get(f"/profile/{INVALID_ID}")
-
+    def test_view_non_existing_profile(self, client: FlaskClient):
+        """Viewing nonexisting profile should raise an error"""
+        username_to_find = "trash"
+        response = client.get(f"/profile/details/{username_to_find}")
         assert response.status_code == 404
 
-    def test_view_private_profile_visitor(self, client: FlaskClient):
-        response = client.get(f"/profile/{PRIVATE_VALID_ID}")
-
-        assert response.status_code == 403
-
-    def test_view_private_profile_loggedin(self, client: FlaskClient):
-        response = client.get(
-            f"/profile/{PRIVATE_VALID_ID}", headers={"user": PUBLIC_PROFILE_USER_2}
-        )
-
-        assert response.status_code == 403
-
-    def test_view_private_profile_follower(self, client: FlaskClient):
-        response = client.get(
-            f"/profile/{PRIVATE_VALID_ID}", headers={"user": PRIVATE_PROFILE_USER_1}
-        )
-
-        assert response.status_code == 403
-
-    def test_view_private_profile_follower_approved(self, client: FlaskClient):
-        response = client.get(
-            f"/profile/{PRIVATE_VALID_ID}", headers={"user": PUBLIC_PROFILE_USER_1}
-        )
-        profiles = Profile.query.all()
-        print(profiles[1].id)
+    def test_view_public_profile_without_login(self, client: FlaskClient):
+        """everyone can view public profiles"""
+        username_to_find = PUBLIC_PROFILE_USER_1
+        response = client.get(f"/profile/details/{username_to_find}")
         assert response.status_code == 200
-        assert response.json.get("id") == PRIVATE_VALID_ID
-        assert response.json.get("username") == PRIVATE_PROFILE_USER_1
-        assert "education" in response.json
-        assert "work_experience" in response.json
+        assert response.json["username"] == username_to_find
+
+    def test_view_public_profile_with_login(self, client: FlaskClient):
+        """everyone can view public profiles"""
+        username_to_find = PUBLIC_PROFILE_USER_1
+        response = client.get(
+            f"/profile/details/{username_to_find}",
+            headers={"user": PUBLIC_PROFILE_USER_2},
+        )
+        assert response.status_code == 200
+        assert response.json["username"] == username_to_find
+
+    def test_view_private_profile_without_login(self, client: FlaskClient):
+        """everyone has partial access to private profile (username, first name, last name)."""
+        username_to_find = PRIVATE_PROFILE_USER_1
+        response = client.get(f"/profile/details/{username_to_find}")
+        assert response.status_code == 200
+        assert response.json["username"] == username_to_find
+        assert response.json.get("birthday") == None
+
+    def test_view_private_profile_with_login(self, client: FlaskClient):
+        """only logged and not blocked user has partial access to private profile"""
+        username_to_find = PRIVATE_PROFILE_USER_1
+        response = client.get(
+            f"/profile/details/{username_to_find}",
+            headers={"user": PUBLIC_PROFILE_USER_2},
+        )
+        assert response.status_code == 200
+        assert response.json["username"] == username_to_find
+        assert response.json.get("birthday") == None
+
+    def test_view_private_profile_with_approved_follow_request(
+        self, client: FlaskClient
+    ):
+        """only logged in profile which has approved follow request, has full access to requested profile"""
+
+        # user 1 sends follow request to user 2
+        response = client.post(
+            "/api/profile/follow",
+            json={"user_to_follow": PRIVATE_PROFILE_USER_2},
+            headers={"user": PRIVATE_PROFILE_USER_1},
+        )
+        assert response.status_code == 200
+
+        # user 2 approves
+        response = client.post(
+            "/api/profile/followers",
+            json={"follower_id": PRIVATE_VALID_ID, "reject": "false"},
+            headers={"user": PRIVATE_PROFILE_USER_2},
+        )
+        assert response.status_code == 200
+
+        # user 1 sees user 2
+        response = client.get(
+            f"/profile/details/{PRIVATE_PROFILE_USER_2}",
+            headers={"user": PRIVATE_PROFILE_USER_1},
+        )
+        assert response.status_code == 200
+        assert response.json["username"] == PRIVATE_PROFILE_USER_2
+        assert response.json.get("birthday") == "1995-04-25"
+        assert response.json.get("biography") == "Lorem"
+
+    def test_view_private_profile_with_login_with_block(self, client: FlaskClient):
+        """only logged and not blocked user has partial access to private profile"""
+        # user 1 blocks user 2
+        # user 2 cannot find user 1
+
+        # perform block
+        response = client.put(
+            "/api/profile/block",
+            json={"profile_to_block": PRIVATE_PROFILE_USER_2},
+            headers={"user": PRIVATE_PROFILE_USER_1},
+        )
+
+        assert response.status_code == 200
+        assert response.json["blocker_id"] == PRIVATE_VALID_ID
+
+        # try to find
+        username_to_find = PRIVATE_PROFILE_USER_1
+        response = client.get(
+            f"profile/details/{username_to_find}",
+            headers={"user": PRIVATE_PROFILE_USER_2},
+        )
+        assert response.status_code == 404

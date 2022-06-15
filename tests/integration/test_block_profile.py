@@ -107,7 +107,7 @@ class TestBlockProfile:
         self, client: FlaskClient, incoming_data_valid: dict
     ):
         response = client.put(
-            "/api/profiles/block",
+            "/api/profile/block",
             json=incoming_data_valid,
             headers=self.get_headers_valid(mika),
         )
@@ -117,7 +117,7 @@ class TestBlockProfile:
 
     def test_block_profile_fail(self, client: FlaskClient, incoming_data_invalid: dict):
         response = client.put(
-            "/api/profiles/block",
+            "/api/profile/block",
             json=incoming_data_invalid,
             headers=self.get_headers_valid(mika),
         )
@@ -126,7 +126,7 @@ class TestBlockProfile:
 
     def test_block_profile_trash_data(self, client: FlaskClient, trash_data: dict):
         response = client.put(
-            "/api/profiles/block", json=trash_data, headers=self.get_headers_valid(mika)
+            "/api/profile/block", json=trash_data, headers=self.get_headers_valid(mika)
         )
         assert response.status_code == 400
 
@@ -134,7 +134,7 @@ class TestBlockProfile:
         self, client: FlaskClient, incoming_data_valid: dict
     ):
         """Request must be send with valid token. When send without token, request should fail."""
-        response = client.put("/api/profiles/basic-info", json=incoming_data_valid)
+        response = client.put("/api/profile/basic-info", json=incoming_data_valid)
         print(response)
         assert response.status_code == 404
 
@@ -143,8 +143,42 @@ class TestBlockProfile:
     ):
         """Request must be send with valid token. When send invalid token, request should fail."""
         response = client.put(
-            "/api/profiles/basic-info",
+            "/api/profile/basic-info",
             json=incoming_data_valid,
             headers=self.get_headers_invalid(),
+        )
+        assert response.status_code == 404
+
+    def test_is_profile_blocked_by_me(
+        self, client: FlaskClient, incoming_data_valid: dict
+    ):
+        """Should return true if I exist, if user exists and I blocked requested user"""
+        # mika blocks pera in previous test
+
+        # mika sees that he blocked pera
+        response = client.get(
+            f"/api/profile/is-blocked-by-me/{pera.username}",
+            headers=self.get_headers_valid(mika),
+        )
+        assert response.status_code == 200
+        assert response.json == True
+
+    def test_is_profile_blocked_by_me_fail(self, client: FlaskClient):
+        """Should return true if I exist, if user exists and I blocked requested user"""
+        # mika blocks pera in previous test
+
+        # mika sees that he blocked pera
+        response = client.get(
+            f"/api/profile/is-blocked-by-me/TRASH", headers=self.get_headers_valid(mika)
+        )
+        assert response.status_code == 404
+
+    def test_is_profile_blocked_by_me_without_login(self, client: FlaskClient):
+        """Should return true if I exist, if user exists and I blocked requested user"""
+        # mika blocks pera in previous test
+
+        # mika sees that he blocked pera
+        response = client.get(
+            f"/api/profile/is-blocked-by-me/{pera.username}", headers={}
         )
         assert response.status_code == 404

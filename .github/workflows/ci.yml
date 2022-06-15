@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
-        python: [3.8.1]
+        python: [3.10.0]
         poetry-version: [1.1.12]
     steps:
     #----------------------------------------------
@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.local 
-          key: poetry-0  
+          key: poetry-1
     #----------------------------------------------
     # install & configure poetry if cache does not exist
     #----------------------------------------------
@@ -60,17 +60,17 @@ jobs:
     #----------------------------------------------
     #  install dependencies if cache does not exist
     #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
-      - name: Install dependencies
-        run: poetry install
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      # - name: Load cached venv
+      #   id: cached-poetry-dependencies
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: .venv
+      #     key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      #     restore-keys: |
+      #       venv-${{ runner.os }}-
+      # - name: Install dependencies
+      #   run: poetry install
+      #   if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     #----------------------------------------------
     #  check lint with black lib
     #----------------------------------------------
@@ -85,9 +85,7 @@ jobs:
     #----------------------------------------------
       - name: Test with pytest
         run: | 
-              poetry run coverage erase
               poetry run coverage run --source=user_profile_service -m pytest 
-              poetry run coverage xml
         env:
             KAFKA_TOPIC: test-topic
             DATABASE_USERNAME: postgres

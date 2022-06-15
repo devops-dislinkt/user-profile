@@ -17,13 +17,7 @@ import user_profile_service.routes_utils
 # -------------
 
 
-@api.get("/profiles")
-def get_all_profiles():
-    profiles = database.get_all(Profile)
-    return jsonify([profile.to_dict() for profile in profiles])
-
-
-@api.put("/profiles/basic-info")
+@api.put("/profile/basic-info")
 def edit_profile():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -35,7 +29,7 @@ def edit_profile():
     return jsonify(profile.to_dict())
 
 
-@api.put("/profiles/work-experience")
+@api.put("/profile/work-experience")
 def edit_profile_work_experience():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -48,7 +42,7 @@ def edit_profile_work_experience():
     return jsonify(experience.to_dict())
 
 
-@api.put("/profiles/education")
+@api.put("/profile/education")
 def edit_profile_education():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -61,7 +55,7 @@ def edit_profile_education():
     return jsonify(education.to_dict())
 
 
-@api.put("/profiles/skills")
+@api.put("/profile/skills")
 def edit_profile_skills():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -76,7 +70,7 @@ def edit_profile_skills():
     return jsonify(profile.to_dict())
 
 
-@api.put("/profiles/interests")
+@api.put("/profile/interests")
 def edit_profile_interests():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
@@ -95,12 +89,10 @@ def edit_profile_interests():
 # --------------
 
 
-@api.put("/profiles/block")
+@api.put("/profile/block")
 def block_profile():
     user: str = request.headers.get("user")
     profile = profile_service.get_profile(user)
-    if not profile:
-        return "profile not found", 400
     if not request.json.get("profile_to_block"):
         return "did not receive profile to block", 400
     try:
@@ -110,6 +102,15 @@ def block_profile():
         return jsonify(block.to_dict(only=("blocker_id", "blocked_id")))
     except NoResultFound:
         return "user not found", 404
+
+
+@api.get("/profile/is-blocked-by-me/<string:username_to_find>")
+def is_profile_blocked_by_me(username_to_find: str):
+    user: str = request.headers.get("user")
+    profile = profile_service.get_profile(user)
+    profile_to_find = profile_service.get_profile(username_to_find)
+    is_blocked = profile.is_profile_blocked_by_me(profile_to_find.id)
+    return jsonify(is_blocked)
 
 
 # FOLLOW PROFILE
@@ -126,7 +127,7 @@ def follow_profile():
     except Exception as e:
         return "Not valid params: {}".format(e), 404
 
-    return "Follow request successfully sent", 200
+    return jsonify("Follow request successfully sent"), 200
 
 
 @api.get("/profile/followers")
@@ -159,21 +160,13 @@ def get_all_following():
         "approved", default=False, type=lambda v: v.lower() == "true"
     )
     user: str = request.headers.get("user")
-    try:
-        user_profile = profile_service.get_profile(user)
-        list = [
-            request
-            for request in user_profile.following
-            if request.approved == approved
-        ]
-    except Exception as e:
-        return "Not valid params: {}".format(e), 404
+    user_profile = profile_service.get_profile(user)
+    req_list = [
+        request for request in user_profile.following if request.approved == approved
+    ]
 
     return jsonify(
-        [
-            profile.to_dict(only=("approved", "following_id", "following.username"))
-            for profile in list
-        ]
+        [profile.to_dict(only=("approved", "following_id")) for profile in req_list]
     )
 
 
@@ -191,26 +184,39 @@ def resolve_follow_request():
     return "Request resolved", 200
 
 
+# SEARCH AND GET
+# --------------
+
+
 @public_api.get("/profile/search")
 def search_profile():
+
     search_input = request.args.get("username")
     profiles = profile_service.search_profile(search_input)
 
-    return (
-        jsonify([profile.to_dict(only=("username", "id")) for profile in profiles]),
-        200,
+    # return both public & private profiles
+    return jsonify(
+        [
+            profile.to_dict(
+                only=("username", "id", "first_name", "last_name", "private")
+            )
+            for profile in profiles
+        ]
     )
 
 
-@public_api.get("/profile/<int:id>")
-def get_profile_by_id(
-    id: int,
-):
-    user: str = request.headers.get("user")
-    try:
-        profile = profile_service.get_profile_by_id(id, user)
-    except NoResultFound as e:
-        return "Not valid params: {}".format(e), 404
-    if not profile:
-        return "Profile is set to private", 403
-    return profile.to_dict()
+@public_api.get("/profile/details/<string:username_to_find>")
+def get_profile_details(username_to_find: str):
+
+    profile_to_find = profile_service.get_profile_details(
+        username_to_find=username_to_find,
+        logged_in_username=request.headers.get("user"),
+    )
+
+    return jsonify(profile_to_find.to_dict())
+
+
+@api.get("/profile")
+def get_all_profiles():
+    profiles = database.get_all(Profile)
+    return jsonify([profile.to_dict() for profile in profiles])

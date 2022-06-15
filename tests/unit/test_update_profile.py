@@ -136,9 +136,7 @@ class TestEditProfile:
         assert basic_info_data["first_name"] == updated.first_name
         assert basic_info_data["last_name"] == updated.last_name
         assert basic_info_data["phone_number"] == updated.phone_number
-        assert basic_info_data["birthday"].strftime(
-            "%Y-%m-%d"
-        ) == updated.birthday.strftime("%Y-%m-%d")
+        assert basic_info_data["birthday"] == updated.birthday.strftime("%Y-%m-%d")
 
     def test_edit_work_experience_success(
         self, app: Flask, public_profile: Profile, work_experience_data: dict
@@ -158,12 +156,12 @@ class TestEditProfile:
         assert (
             work_experience_data["currently_working"] == updated_exp.currently_working
         )
-        assert work_experience_data["start_date"].strftime(
+        assert work_experience_data["start_date"] == updated_exp.start_date.strftime(
             "%Y-%m-%d"
-        ) == updated_exp.start_date.strftime("%Y-%m-%d")
-        assert work_experience_data["end_date"].strftime(
+        )
+        assert work_experience_data["end_date"] == updated_exp.end_date.strftime(
             "%Y-%m-%d"
-        ) == updated_exp.end_date.strftime("%Y-%m-%d")
+        )
 
     def test_edit_education_success(
         self, app: Flask, public_profile: Profile, education_data: dict
@@ -186,15 +184,17 @@ class TestEditProfile:
 class TestEditProfileKeys:
     """
     Test case for unit tests when sending bad keys as json data and when sending extra keys (beside regular keys).
-    Sending bad keys should raise keyerror exception.
+    Sending bad keys shouldn't raise keyerror exception.
     Sending non existing keys shouldn't make a difference. Request should fail
     """
 
     def test_edit_basic_info_bad_keys(
         self, app: Flask, public_profile: Profile, trash_data: dict
     ):
-        with pytest.raises(KeyError):
-            profile_service.edit_basic_info(data=trash_data, profile=public_profile)
+        response = profile_service.edit_basic_info(
+            data=trash_data, profile=public_profile
+        )
+        assert response.id == public_profile.id
 
     def test_edit_basic_info_extra_keys(
         self,
@@ -212,17 +212,18 @@ class TestEditProfileKeys:
         assert basic_info_data_with_trash_data["first_name"] == updated.first_name
         assert basic_info_data_with_trash_data["last_name"] == updated.last_name
         assert basic_info_data_with_trash_data["phone_number"] == updated.phone_number
-        assert basic_info_data_with_trash_data["birthday"].strftime(
+        assert basic_info_data_with_trash_data["birthday"] == updated.birthday.strftime(
             "%Y-%m-%d"
-        ) == updated.birthday.strftime("%Y-%m-%d")
+        )
 
     def test_edit_work_experience_bad_keys(
         self, app: Flask, public_profile: Profile, trash_data: dict
     ):
-        with pytest.raises(KeyError):
-            profile_service.create_or_update_work_experience(
-                data=trash_data, profile=public_profile
-            )
+
+        response = profile_service.create_or_update_work_experience(
+            data=trash_data, profile=public_profile
+        )
+        assert response.profile_id == public_profile.id
 
     def test_edit_work_experience_extra_keys(
         self,
