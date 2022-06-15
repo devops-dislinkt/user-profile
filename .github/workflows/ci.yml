@@ -60,17 +60,17 @@ jobs:
     #----------------------------------------------
     #  install dependencies if cache does not exist
     #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
-      - name: Install dependencies
-        run: poetry install
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      # - name: Load cached venv
+      #   id: cached-poetry-dependencies
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: .venv
+      #     key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      #     restore-keys: |
+      #       venv-${{ runner.os }}-
+      # - name: Install dependencies
+      #   run: poetry install
+      #   if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     #----------------------------------------------
     #  check lint with black lib
     #----------------------------------------------
