@@ -107,6 +107,26 @@ def search_profile(searched_username: str) -> list[Profile]:
     return profiles
 
 
+def invalidate_following(username_first, username_second):
+    """Removes relationship between two profiles with gine usernames : first and second. If there is no relationship between them nothing will be done."""
+    profile_first = get_profile(username_first)
+    profile_second = get_profile(username_second)
+    print('HEREEE')
+    #check if person1 follows person2
+    request = Following.query.filter_by(
+        follower_id=profile_first.id, following_id=profile_second.id
+    )
+    if request:
+        request.delete()
+    #check if person2 follows person1
+    request = Following.query.filter_by(
+        follower_id=profile_second.id, following_id=profile_first.id
+    )
+    if request:
+        request.delete()
+
+    database.commit_changes()
+
 def block_profile(username_to_block: str, profile: Profile) -> Blocking:
     """Blocks profile with provided username. Second arg is currently logged in profile."""
     profile_to_block: Profile = database.find_by_username(username_to_block)
@@ -114,6 +134,11 @@ def block_profile(username_to_block: str, profile: Profile) -> Blocking:
         raise NoResultFound(f"No user with given username: {username_to_block}")
     block = Blocking(blocker_id=profile.id, blocked_id=profile_to_block.id)
     profile.profiles_blocked_by_me.append(block)
+
+    #remove from followers
+    invalidate_following(username_to_block, profile.username)
+  
+
     return database.add_or_update(block)
 
 
