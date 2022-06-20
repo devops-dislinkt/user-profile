@@ -111,7 +111,6 @@ def invalidate_following(username_first, username_second):
     """Removes relationship between two profiles with gine usernames : first and second. If there is no relationship between them nothing will be done."""
     profile_first = get_profile(username_first)
     profile_second = get_profile(username_second)
-    print('HEREEE')
     #check if person1 follows person2
     request = Following.query.filter_by(
         follower_id=profile_first.id, following_id=profile_second.id
