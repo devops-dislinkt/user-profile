@@ -166,7 +166,10 @@ def get_all_following():
     ]
 
     return jsonify(
-        [profile.to_dict(only=("approved", "following_id")) for profile in req_list]
+        [
+            profile.to_dict(only=("approved", "following_id", "following.username"))
+            for profile in req_list
+        ]
     )
 
 
