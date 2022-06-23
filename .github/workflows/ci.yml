@@ -42,8 +42,8 @@ jobs:
     #----------------------------------------------
     #       check commit message
     #----------------------------------------------
-      - name : Check commit messages
-        uses: wagoid/commitlint-github-action@v4
+      # - name : Check commit messages
+      #   uses: wagoid/commitlint-github-action@v4
     #----------------------------------------------
     #     load cached poetry if cache exists
     #----------------------------------------------
