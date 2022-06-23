@@ -126,10 +126,9 @@ jobs:
     #     build project and upload
     #----------------------------------------------
       - name: Build
-        if: github.event_name == 'push'
         run: |
             poetry version ${{ steps.version.outputs.VERSION }}
-            poetry run python -m build
+            poetry build
       - name: Upload build
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
