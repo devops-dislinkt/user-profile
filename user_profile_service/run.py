@@ -1,4 +1,5 @@
 from user_profile_service import create_app, create_kafka_thread
+from flask_cors import CORS, cross_origin
 
 
 if __name__ == "__main__":

@@ -26,17 +26,24 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
-        python: [3.8.1]
+        python: [3.10.0]
         poetry-version: [1.1.12]
     steps:
     #----------------------------------------------
     #       check-out repo and set-up python
     #----------------------------------------------
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up python 
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
+    #----------------------------------------------
+    #       check commit message
+    #----------------------------------------------
+      - name : Check commit messages
+        uses: wagoid/commitlint-github-action@v4
     #----------------------------------------------
     #     load cached poetry if cache exists
     #----------------------------------------------
@@ -45,7 +52,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.local 
-          key: poetry-0  
+          key: poetry-1
     #----------------------------------------------
     # install & configure poetry if cache does not exist
     #----------------------------------------------
@@ -65,9 +72,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv1-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
-            venv-${{ runner.os }}-
+            venv1-${{ runner.os }}-
       - name: Install dependencies
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -110,6 +117,7 @@ jobs:
     #----------------------------------------------
       - name: Upload test coverage
         uses: actions/upload-artifact@v1
+        if: github.event_name == 'push'
         with:
           name: code-coverage-${{ steps.version.outputs.VERSION }}
           path: coverage.xml
@@ -118,10 +126,9 @@ jobs:
     #     build project and upload
     #----------------------------------------------
       - name: Build
-        if: github.event_name == 'push'
         run: |
             poetry version ${{ steps.version.outputs.VERSION }}
-            poetry run python -m build
+            poetry build
       - name: Upload build
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
@@ -142,10 +149,35 @@ jobs:
     #----------------------------------------------
       - name: Override Coverage Source Path for Sonar
         run: |
-          sed -i "s/<source>\/home\/runner\/work\/user-profile\/user-profile\/user_profile_service<\/source>/<source>\/github\/workspace\/user_profile_service<\/source>/g" /home/runner/work/user-profile/user-profile/coverage.xml
+          sed -i "s/<source>\/home\/runner\/work\/user-profile\/user-profile<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/user-profile/user-profile/coverage.xml
+          cat coverage.xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #----------------------------------------------
+    #       publish docker image to DockerHub
+    #----------------------------------------------    
+      - name: Set up QEMU
+        if: github.event_name == 'push'
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        if: github.event_name == 'push'
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASS }}
+      - name: Build and push
+        if: github.event_name == 'push'
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dislinkt-user-profile:${{ steps.version.outputs.VERSION }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/dislinkt-user-profile:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/dislinkt-user-profile:buildcache,mode=max
           

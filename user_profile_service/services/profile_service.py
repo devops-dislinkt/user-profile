@@ -11,8 +11,6 @@ def create_profile(username: str):
 
 def create_or_update_work_experience(data: dict, profile: Profile) -> Experience:
     data["profile_id"] = profile.id
-    data["start_date"] = datetime.strptime(data["start_date"], "%Y-%m-%d")
-    data["end_date"] = datetime.strptime(data["end_date"], "%Y-%m-%d")
     work_experience = Experience(fields=data)
 
     # if work experience exists -> update work experience, otherwise create work experience
@@ -26,7 +24,6 @@ def create_or_update_work_experience(data: dict, profile: Profile) -> Experience
 
 def edit_basic_info(data: dict, profile: Profile):
     data["profile_id"] = profile.id
-    data["birthday"] = datetime.strptime(data["birthday"], "%Y-%m-%d")
     database.edit_instance(Profile, profile.id, fields=data)
     return profile
 
@@ -66,8 +63,16 @@ def follow_profile(user: str, user_to_follow: str):
 
     request = Following(follower_id=profile.id, following_id=profile_to_follow.id)
     request.approved = False if profile_to_follow.private else True
-    profile_to_follow.followers.append(request)
-    database.add_or_update(request)
+
+    # check if request alreay exists
+    found_req = any(
+        request.follower_id == req.follower_id
+        and request.following_id == req.following_id
+        for req in profile_to_follow.followers
+    )
+    if not found_req:
+        profile_to_follow.followers.append(request)
+        database.add_or_update(profile_to_follow)
 
 
 def resolve_follow_req(username: str, follower_id: str, reject: bool):
@@ -87,7 +92,7 @@ def resolve_follow_req(username: str, follower_id: str, reject: bool):
     database.commit_changes()
 
 
-def get_profile(username: str):
+def get_profile(username: str) -> Profile:
     profile = Profile.query.filter_by(username=username).first()
     if not profile:
         raise NoResultFound(f"No user with given username: {username}")
@@ -95,28 +100,31 @@ def get_profile(username: str):
     return profile
 
 
-def search_profile(searched_username: str):
+def search_profile(searched_username: str) -> list[Profile]:
     profiles = Profile.query.filter(
         Profile.username.like("%" + searched_username + "%")
     )
     return profiles
 
 
-def get_profile_by_id(id: int, logged_in_username=None):
-    logged_in_user = get_profile(logged_in_username) if logged_in_username else None
-    profile = Profile.query.get(id)
-    if not profile:
-        raise NoResultFound(f"No user with given id: {id}")
-    if not profile.private:
-        return profile
+def invalidate_following(username_first, username_second):
+    """Removes relationship between two profiles with gine usernames : first and second. If there is no relationship between them nothing will be done."""
+    profile_first = get_profile(username_first)
+    profile_second = get_profile(username_second)
+    # check if person1 follows person2
+    request = Following.query.filter_by(
+        follower_id=profile_first.id, following_id=profile_second.id
+    )
+    if request:
+        request.delete()
+    # check if person2 follows person1
+    request = Following.query.filter_by(
+        follower_id=profile_second.id, following_id=profile_first.id
+    )
+    if request:
+        request.delete()
 
-    if not logged_in_user and profile.private:
-        return None
-    followers = profile.followers
-    for req in followers:
-        if req.approved and req.follower_id == logged_in_user.id:
-            return profile
-    return None
+    database.commit_changes()
 
 
 def block_profile(username_to_block: str, profile: Profile) -> Blocking:
@@ -126,4 +134,65 @@ def block_profile(username_to_block: str, profile: Profile) -> Blocking:
         raise NoResultFound(f"No user with given username: {username_to_block}")
     block = Blocking(blocker_id=profile.id, blocked_id=profile_to_block.id)
     profile.profiles_blocked_by_me.append(block)
+
+    # remove from followers
+    invalidate_following(username_to_block, profile.username)
+
     return database.add_or_update(block)
+
+
+def get_profile_details(username_to_find: str, logged_in_username: str | None):
+    """
+    Get profile details. Everyone can get public profile details.
+
+    In order to get  access to private profile's username, name &  surname, user which is making request must:
+    1. not be blocked by requested user.
+
+    In order to get full acces to private profiles, user which is making request must:
+    1. not be blocked by requested user,
+    2. be logged in,
+    3. have approved follow request by requested user.
+
+
+    Returns: list of profiles
+    """
+
+    # everyone can get public profile details
+    profile_to_find = get_profile(username_to_find)
+    if not profile_to_find.private:
+        return profile_to_find
+
+    # conditions for private profiles
+
+    # if user is logged in continue check, otherwise return username, name &  surname
+    try:
+        logged_in_profile = get_profile(logged_in_username)
+    except NoResultFound:
+        return Profile(
+            {
+                "username": profile_to_find.username,
+                "first_name": profile_to_find.first_name,
+                "last_name": profile_to_find.last_name,
+                "id": profile_to_find.id,
+            }
+        )
+
+    # check if it's blocked
+    if profile_to_find.is_profile_blocked_by_me(logged_in_profile.id):
+        raise NoResultFound(f"No user with given username: {username_to_find}")
+
+    # if follow request is not approved return partial access to profile
+    if not profile_to_find.is_follow_reqest_approved_by_me(logged_in_profile.id):
+        return Profile(
+            {
+                "username": profile_to_find.username,
+                "first_name": profile_to_find.first_name,
+                "last_name": profile_to_find.last_name,
+                "private": profile_to_find.private,
+                "id": profile_to_find.id,
+            }
+        )
+
+    # if follow request is approved return full access to profile
+    else:
+        return profile_to_find

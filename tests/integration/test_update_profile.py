@@ -85,7 +85,7 @@ class TestEditProfileBasicInfo:
             "phone_number": "654321",
             "birthday": "2001-04-30",
         }
-        response = client.put("/api/profiles/basic-info", json=incoming_data)
+        response = client.put("/api/profile/basic-info", json=incoming_data)
         assert response.status_code == 404
 
     def test_edit_profile_basic_info_invalid_token(self, client: FlaskClient):
@@ -99,7 +99,7 @@ class TestEditProfileBasicInfo:
             "birthday": "2001-04-30",
         }
         response = client.put(
-            "/api/profiles/basic-info",
+            "/api/profile/basic-info",
             json=incoming_data,
             headers=self.get_headers_invalid(),
         )
@@ -115,7 +115,7 @@ class TestEditProfileBasicInfo:
             "birthday": "2001-04-30",
         }
         response = client.put(
-            "/api/profiles/basic-info",
+            "/api/profile/basic-info",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
@@ -140,22 +140,22 @@ class TestEditProfileBasicInfo:
             "end_date": "2018-05-15",
         }
         response = client.put(
-            "/api/profiles/work-experience",
+            "/api/profile/work-experience",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
         assert response.status_code == 200
 
-    def test_edit_profile_work_experience_fail(self, client: FlaskClient):
-        """Sending bad keys in incoming data should raise KeyError and return 400. Request should fail."""
+    def test_edit_profile_work_experience_with_trash_data(self, client: FlaskClient):
+        """Sending bad keys in incoming data shouldn't raise error bacause object already exists."""
 
         incoming_data = {"trash": "trash"}
         response = client.put(
-            "/api/profiles/work-experience",
+            "/api/profile/work-experience",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
-        assert response.status_code == 400
+        assert response.status_code == 200
 
     def test_edit_profile_education_success(self, client: FlaskClient):
         incoming_data = {
@@ -166,7 +166,7 @@ class TestEditProfileBasicInfo:
             "start_date": "2014-05-15",
         }
         response = client.put(
-            "/api/profiles/education",
+            "/api/profile/education",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
@@ -185,7 +185,7 @@ class TestEditProfileBasicInfo:
             "start_date": "2014-05-15",
         }
         response = client.put(
-            "/api/profiles/education",
+            "/api/profile/education",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
@@ -194,7 +194,7 @@ class TestEditProfileBasicInfo:
     def test_edit_profile_skills_success(self, client: FlaskClient):
         incoming_data = {"skills": "angular, tensorflow, python"}
         response = client.put(
-            "/api/profiles/skills",
+            "/api/profile/skills",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
@@ -205,7 +205,7 @@ class TestEditProfileBasicInfo:
 
         incoming_data = {"vestine_wrong_field": "angular, tensorflow, python"}
         response = client.put(
-            "/api/profiles/skills",
+            "/api/profile/skills",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
@@ -214,7 +214,7 @@ class TestEditProfileBasicInfo:
     def test_edit_profile_interests(self, client: FlaskClient):
         incoming_data = {"interests": "swimming, hiking,..."}
         response = client.put(
-            "/api/profiles/interests",
+            "/api/profile/interests",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
@@ -224,7 +224,7 @@ class TestEditProfileBasicInfo:
         """Sending bad keys in incoming data should raise KeyError and return 400. Request should fail."""
         incoming_data = {"trash": "trash"}
         response = client.put(
-            "/api/profiles/interests",
+            "/api/profile/interests",
             json=incoming_data,
             headers=self.get_headers_valid(PUBLIC_PROFILE),
         )
