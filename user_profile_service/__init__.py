@@ -13,7 +13,7 @@ def create_app():
     flask_app.config["SQLALCHEMY_DATABASE_URI"] = config.DATABASE_CONNECTION_URI
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.config["SECRET_KEY"] = config.secret_key
-    cors = CORS(flask_app)
+    CORS(app, resources={r"/*": {"origins": "*", "send_wildcard": "False"}})
     flask_app.config["CORS_HEADERS"] = "Content-Type"
 
     with flask_app.app_context():
